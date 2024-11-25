@@ -30,7 +30,7 @@ document.getElementById('uploadForm').addEventListener('submit', function(event)
     document.getElementById('result').innerHTML = "<p>Enviando documentos...</p>";
 
     // Envia os dados para o servidor via fetch
-    fetch('http://localhost:3000/upload', { 
+    fetch('https://envio-de-documentos-1.onrender.com/upload', { 
         method: 'POST',
         body: formData 
     })

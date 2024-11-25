@@ -6,7 +6,7 @@ const fs = require('fs');
 const bodyParser = require('body-parser');  // Para processar dados de texto
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;  // Adiciona suporte à variável de ambiente PORT
 
 // Permitir qualquer origem durante o desenvolvimento
 app.use(cors({
