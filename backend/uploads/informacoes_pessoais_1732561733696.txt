@@ -1,0 +1,10 @@
+{
+  "nomeCompleto": "",
+  "pis": "",
+  "email": "",
+  "telefone": "",
+  "escolaridade": "",
+  "tempoResidencia": "",
+  "profissao": "",
+  "tempoEmprego": ""
+}
