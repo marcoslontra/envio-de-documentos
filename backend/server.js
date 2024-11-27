@@ -4,7 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { google } = require('googleapis');
-const bodyParser = require('body-parser');  // Para processar dados de texto
+const bodyParser = require('body-parser');
 
 // Configuração do servidor Express
 const app = express();
@@ -38,28 +38,22 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Configuração do Google Drive
-const oauth2Client = new google.auth.OAuth2(
-    'YOUR_CLIENT_ID',    // Substitua pelo seu CLIENT_ID
-    'YOUR_CLIENT_SECRET', // Substitua pelo seu CLIENT_SECRET
-    'YOUR_REDIRECT_URI'  // Substitua pelo seu REDIRECT_URI
-);
+// Carrega as credenciais da conta de serviço
+const keyPath = path.join(__dirname, 'config/service-account-key.json');
+const credentials = require(keyPath);
 
-// Autenticação com o token de acesso
-oauth2Client.setCredentials({
-    access_token: 'YOUR_ACCESS_TOKEN',  // Substitua pelo seu token de acesso
-    refresh_token: 'YOUR_REFRESH_TOKEN', // Substitua pelo seu refresh token
-    scope: 'https://www.googleapis.com/auth/drive.file',
-    token_type: 'Bearer',
-    expiry_date: true
+const auth = new google.auth.GoogleAuth({
+    credentials,
+    scopes: ['https://www.googleapis.com/auth/drive.file']
 });
+
+const drive = google.drive({ version: 'v3', auth });
 
 // Função para fazer o upload de um arquivo para o Google Drive
 async function uploadToDrive(filePath, folderId) {
-    const drive = google.drive({ version: 'v3', auth: oauth2Client });
     const fileMetadata = {
         name: path.basename(filePath),
-        parents: [folderId]
+        parents: [folderId] // Substitua pelo ID da pasta "Documentos de Usuários"
     };
     const media = {
         mimeType: 'application/pdf', // Ajuste conforme necessário
@@ -104,10 +98,9 @@ app.post('/upload', upload.fields([
         const folderMetadata = {
             name: nomeCompleto,
             mimeType: 'application/vnd.google-apps.folder',
-            parents: ['DOCUMENTOS_DE_USUARIOS_FOLDER_ID'] // Substitua pelo ID da pasta "Documentos de Usuários"
+            parents: ['1jLKVW9f5dmwW0O0jUg3sNqvAhP_WL80U'] // ID da pasta "Documentos de Usuários"
         };
 
-        const drive = google.drive({ version: 'v3', auth: oauth2Client });
         const folder = await drive.files.create({
             resource: folderMetadata,
             fields: 'id'
