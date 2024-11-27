@@ -1,0 +1,160 @@
+/* Reseta os estilos padrões */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Definições gerais do corpo da página */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #fff;
+    color: #333;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+}
+
+/* Container do formulário */
+.container {
+    width: 100%;
+    max-width: 900px;
+    margin-top: 30px;
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Título */
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+    color: #333;
+}
+
+/* Títulos dos campos (rótulos) */
+label {
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+    font-size: 16px;
+}
+
+/* Estilo para os campos de entrada (inputs) */
+input[type="file"],
+input[type="text"],
+input[type="email"],
+input[type="tel"] {
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    background-color: #f5f5f5; /* Fundo leve e neutro */
+    margin-bottom: 20px;
+    width: 100%;  /* Garante que os campos ocupem toda a largura disponível */
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+/* Estilo de foco nos campos */
+input[type="file"]:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus {
+    background-color: #fff;  /* Fundo branco ao focar no campo */
+    outline: none;
+}
+
+/* Adiciona borda leve apenas nas caixas de preenchimento das Informações Pessoais */
+fieldset:nth-child(2) input[type="text"],
+fieldset:nth-child(2) input[type="email"],
+fieldset:nth-child(2) input[type="tel"] {
+    border: 1px solid #ddd; /* Borda suave */
+}
+
+/* Botão de envio */
+button {
+    padding: 12px;
+    background-color: #e74c3c;  /* Cor vermelha */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Efeito hover no botão */
+button:hover {
+    background-color: #c0392b;  /* Tom mais escuro de vermelho */
+}
+
+/* Mensagem de resultado (sucesso/erro) */
+#result {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #e74c3c;  /* COR VERMELO */
+}
+
+/* Estilos para os títulos dos grupos de campos */
+fieldset {
+    border: none;  /* Remove a borda padrão do fieldset */
+    margin-bottom: 30px;  /* Adiciona espaçamento entre os grupos de campos */
+}
+
+/* Título do group de campos */
+legend {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Estilos para dispositivos pequenos (tablets e celulares) */
+@media (max-width: 768px) {
+    .container {
+        padding: 25px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    input[type="file"],
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+        font-size: 14px;
+    }
+
+    button {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    input[type="file"],
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+        font-size: 13px;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
