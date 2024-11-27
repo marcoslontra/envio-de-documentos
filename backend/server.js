@@ -3,10 +3,12 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { google } = require('googleapis');
 const bodyParser = require('body-parser');  // Para processar dados de texto
 
+// Configuração do servidor Express
 const app = express();
-const port = process.env.PORT || 3000;  // Adiciona suporte à variável de ambiente PORT
+const port = process.env.PORT || 3000;
 
 // Permitir qualquer origem durante o desenvolvimento
 app.use(cors({
@@ -21,25 +23,64 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Configuração do multer para upload de arquivos
 const uploadDir = path.join(__dirname, 'uploads');
 
-// Verifica se o diretório "uploads" existe, senão cria
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
 }
 
-// Configuração do armazenamento dos arquivos com multer
+// Configuração do armazenamento com multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadDir);  // Define onde os arquivos serão armazenados
+        cb(null, uploadDir);  // Arquivos temporários armazenados localmente
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));  // Define o nome do arquivo
+        cb(null, Date.now() + path.extname(file.originalname));
     }
 });
-
-// Inicializando o multer com a configuração de armazenamento
 const upload = multer({ storage: storage });
 
-// Rota para o upload dos documentos
+// Configuração do Google Drive
+const oauth2Client = new google.auth.OAuth2(
+    'YOUR_CLIENT_ID',    // Substitua pelo seu CLIENT_ID
+    'YOUR_CLIENT_SECRET', // Substitua pelo seu CLIENT_SECRET
+    'YOUR_REDIRECT_URI'  // Substitua pelo seu REDIRECT_URI
+);
+
+// Autenticação com o token de acesso
+oauth2Client.setCredentials({
+    access_token: 'YOUR_ACCESS_TOKEN',  // Substitua pelo seu token de acesso
+    refresh_token: 'YOUR_REFRESH_TOKEN', // Substitua pelo seu refresh token
+    scope: 'https://www.googleapis.com/auth/drive.file',
+    token_type: 'Bearer',
+    expiry_date: true
+});
+
+// Função para fazer o upload de um arquivo para o Google Drive
+async function uploadToDrive(filePath, folderId) {
+    const drive = google.drive({ version: 'v3', auth: oauth2Client });
+    const fileMetadata = {
+        name: path.basename(filePath),
+        parents: [folderId]
+    };
+    const media = {
+        mimeType: 'application/pdf', // Ajuste conforme necessário
+        body: fs.createReadStream(filePath)
+    };
+
+    try {
+        const response = await drive.files.create({
+            resource: fileMetadata,
+            media: media,
+            fields: 'id'
+        });
+        console.log(`Arquivo enviado: ${response.data.id}`);
+        return response.data.id;
+    } catch (error) {
+        console.error('Erro ao enviar arquivo para o Google Drive:', error);
+        throw error;
+    }
+}
+
+// Rota para upload de documentos
 app.post('/upload', upload.fields([
     { name: 'rgCpf' },
     { name: 'certidao' },
@@ -52,31 +93,38 @@ app.post('/upload', upload.fields([
     { name: 'certidaoDependentes' },
     { name: 'cancelamento' },
     { name: 'autorizacao' }
-]), (req, res) => {
+]), async (req, res) => {
     try {
         if (!req.files || Object.keys(req.files).length === 0) {
             return res.status(400).send('Nenhum arquivo foi enviado!');
         }
 
-        // Recebe o nome do usuário preenchido no formulário
-        const nomeCompleto = req.body.nomeCompleto.trim().replace(/\s+/g, '_');  // Normaliza o nome para uma pasta válida
+        // Recebe o nome do usuário e cria a pasta no Google Drive
+        const nomeCompleto = req.body.nomeCompleto.trim().replace(/\s+/g, '_');
+        const folderMetadata = {
+            name: nomeCompleto,
+            mimeType: 'application/vnd.google-apps.folder',
+            parents: ['DOCUMENTOS_DE_USUARIOS_FOLDER_ID'] // Substitua pelo ID da pasta "Documentos de Usuários"
+        };
 
-        // Cria o diretório com o nome do usuário, se não existir
-        const userDir = path.join(uploadDir, nomeCompleto);
-        
-        if (!fs.existsSync(userDir)) {
-            fs.mkdirSync(userDir, { recursive: true });  // Usando { recursive: true } para criar diretórios intermediários
-        }
-
-        // Mover os arquivos para a pasta do usuário
-        Object.keys(req.files).forEach(fileField => {
-            req.files[fileField].forEach(file => {
-                const filePath = path.join(userDir, file.filename);
-                fs.renameSync(file.path, filePath);  // Mover o arquivo para o diretório do usuário
-            });
+        const drive = google.drive({ version: 'v3', auth: oauth2Client });
+        const folder = await drive.files.create({
+            resource: folderMetadata,
+            fields: 'id'
         });
 
-        // Criando o arquivo de texto com as informações pessoais
+        const folderId = folder.data.id;
+
+        // Faz o upload dos arquivos para a nova pasta
+        const files = req.files;
+        for (const fileField in files) {
+            for (const file of files[fileField]) {
+                const filePath = path.join(uploadDir, file.filename);
+                await uploadToDrive(filePath, folderId);
+            }
+        }
+
+        // Cria o arquivo de texto com as informações pessoais no Google Drive
         const personalData = {
             nomeCompleto: req.body.nomeCompleto,
             pis: req.body.pis,
@@ -89,10 +137,20 @@ app.post('/upload', upload.fields([
         };
 
         const personalDataText = JSON.stringify(personalData, null, 2);
-        const personalDataFilePath = path.join(userDir, `informacoes_pessoais_${Date.now()}.txt`);
+        const textFileMetadata = {
+            name: `informacoes_pessoais_${Date.now()}.txt`,
+            parents: [folderId]
+        };
+        const textMedia = {
+            mimeType: 'text/plain',
+            body: personalDataText
+        };
 
-        // Criando o arquivo de texto com as informações pessoais
-        fs.writeFileSync(personalDataFilePath, personalDataText);
+        await drive.files.create({
+            resource: textFileMetadata,
+            media: textMedia,
+            fields: 'id'
+        });
 
         res.status(200).send('Arquivos e informações pessoais enviados com sucesso!');
     } catch (err) {
