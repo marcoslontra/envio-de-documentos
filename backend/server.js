@@ -1,10 +1,13 @@
+// Carrega as variáveis de ambiente do arquivo .env
+require('dotenv').config();
+
 // Forçando a reconstrução no Render
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { google } = require('googleapis');
+const { Dropbox } = require('dropbox');
 const bodyParser = require('body-parser');
 
 // Configuração do servidor Express
@@ -39,43 +42,25 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Carrega as credenciais da conta de serviço
-const keyPath = path.join(__dirname, 'config/service-account-key.json');
-
-// Depuração: imprime o caminho do arquivo de chave
-console.log(`Caminho para a chave de serviço: ${keyPath}`);  // Aqui você verá o caminho no log
-
-// Agora, carrega o arquivo de chave
-const credentials = require(keyPath);
-
-const auth = new google.auth.GoogleAuth({
-    credentials,
-    scopes: ['https://www.googleapis.com/auth/drive.file']
+// Configuração do Dropbox (usando token de acesso de curto prazo)
+const dbx = new Dropbox({
+    accessToken: process.env.DROPBOX_ACCESS_TOKEN, // Certifique-se de definir o token no arquivo .env
+    fetch: require('isomorphic-fetch') // Para garantir que a função fetch esteja disponível
 });
 
-const drive = google.drive({ version: 'v3', auth });
-
-// Função para fazer o upload de um arquivo para o Google Drive
-async function uploadToDrive(filePath, folderId) {
-    const fileMetadata = {
-        name: path.basename(filePath),
-        parents: [folderId] // Substitua pelo ID da pasta "Documentos de Usuários"
-    };
-    const media = {
-        mimeType: 'application/pdf', // Ajuste conforme necessário
-        body: fs.createReadStream(filePath)
-    };
+// Função para fazer o upload de um arquivo para o Dropbox
+async function uploadToDropbox(filePath, dropboxPath) {
+    const fileStream = fs.createReadStream(filePath);
 
     try {
-        const response = await drive.files.create({
-            resource: fileMetadata,
-            media: media,
-            fields: 'id'
+        const response = await dbx.filesUpload({
+            path: dropboxPath,
+            contents: fileStream
         });
-        console.log(`Arquivo enviado: ${response.data.id}`);
-        return response.data.id;
+        console.log(`Arquivo enviado: ${response.result.id}`);
+        return response.result.id;
     } catch (error) {
-        console.error('Erro ao enviar arquivo para o Google Drive:', error);
+        console.error('Erro ao enviar arquivo para o Dropbox:', error);
         throw error;
     }
 }
@@ -99,31 +84,24 @@ app.post('/upload', upload.fields([
             return res.status(400).send('Nenhum arquivo foi enviado!');
         }
 
-        // Recebe o nome do usuário e cria a pasta no Google Drive
+        // Recebe o nome do usuário e cria uma pasta no Dropbox
         const nomeCompleto = req.body.nomeCompleto.trim().replace(/\s+/g, '_');
-        const folderMetadata = {
-            name: nomeCompleto,
-            mimeType: 'application/vnd.google-apps.folder',
-            parents: ['1jLKVW9f5dmwW0O0jUg3sNqvAhP_WL80U'] // ID da pasta "Documentos de Usuários"
-        };
+        const dropboxFolderPath = `/Documentos de Usuários/${nomeCompleto}`;
 
-        const folder = await drive.files.create({
-            resource: folderMetadata,
-            fields: 'id'
-        });
-
-        const folderId = folder.data.id;
+        // Criação de uma nova pasta no Dropbox (se não existir)
+        await dbx.filesCreateFolderV2({ path: dropboxFolderPath });
 
         // Faz o upload dos arquivos para a nova pasta
         const files = req.files;
         for (const fileField in files) {
             for (const file of files[fileField]) {
                 const filePath = path.join(uploadDir, file.filename);
-                await uploadToDrive(filePath, folderId);
+                const dropboxFilePath = `${dropboxFolderPath}/${file.filename}`;
+                await uploadToDropbox(filePath, dropboxFilePath);
             }
         }
 
-        // Cria o arquivo de texto com as informações pessoais no Google Drive
+        // Cria o arquivo de texto com as informações pessoais no Dropbox
         const personalData = {
             nomeCompleto: req.body.nomeCompleto,
             pis: req.body.pis,
@@ -136,19 +114,11 @@ app.post('/upload', upload.fields([
         };
 
         const personalDataText = JSON.stringify(personalData, null, 2);
-        const textFileMetadata = {
-            name: `informacoes_pessoais_${Date.now()}.txt`,
-            parents: [folderId]
-        };
-        const textMedia = {
-            mimeType: 'text/plain',
-            body: personalDataText
-        };
+        const textFilePath = `${dropboxFolderPath}/informacoes_pessoais_${Date.now()}.txt`;
 
-        await drive.files.create({
-            resource: textFileMetadata,
-            media: textMedia,
-            fields: 'id'
+        await dbx.filesUpload({
+            path: textFilePath,
+            contents: personalDataText
         });
 
         res.status(200).send('Arquivos e informações pessoais enviados com sucesso!');
