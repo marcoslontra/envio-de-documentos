@@ -1,3 +1,4 @@
+// Forçando a reconstrução no Render
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
@@ -5,7 +6,6 @@ const path = require('path');
 const fs = require('fs');
 const { google } = require('googleapis');
 const bodyParser = require('body-parser');
-const morgan = require('morgan');
 
 // Configuração do servidor Express
 const app = express();
@@ -17,9 +17,6 @@ app.use(cors({
     methods: 'GET,POST',
     allowedHeaders: 'Content-Type'
 }));
-
-// Usar morgan para logar todas as requisições HTTP
-app.use(morgan('combined'));  // Exibe as requisições no log
 
 // Configuração do body-parser para processar dados de formulário
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -98,11 +95,7 @@ app.post('/upload', upload.fields([
     { name: 'autorizacao' }
 ]), async (req, res) => {
     try {
-        // Log para verificar a requisição recebida
-        console.log('Requisição de upload recebida');
-        
         if (!req.files || Object.keys(req.files).length === 0) {
-            console.error('Nenhum arquivo foi enviado');
             return res.status(400).send('Nenhum arquivo foi enviado!');
         }
 
@@ -120,7 +113,6 @@ app.post('/upload', upload.fields([
         });
 
         const folderId = folder.data.id;
-        console.log(`Pasta criada no Google Drive com ID: ${folderId}`);
 
         // Faz o upload dos arquivos para a nova pasta
         const files = req.files;
@@ -158,8 +150,6 @@ app.post('/upload', upload.fields([
             media: textMedia,
             fields: 'id'
         });
-
-        console.log('Arquivos e informações pessoais enviados com sucesso!');
 
         res.status(200).send('Arquivos e informações pessoais enviados com sucesso!');
     } catch (err) {

@@ -11,7 +11,8 @@
     "express": "^4.21.1",
     "googleapis": "^144.0.0",
     "multer": "^1.4.4",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "morgan": "^1.10.0"  // Adicionando morgan como dependência
   },
   "engines": {
     "node": ">=12.0.0"
