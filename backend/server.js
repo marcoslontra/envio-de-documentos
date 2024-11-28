@@ -1,7 +1,7 @@
 // Carrega as variáveis de ambiente do arquivo .env
 require('dotenv').config();
 
-// Forçando a reconstrução no Render
+// Forçando a reconstrução
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
