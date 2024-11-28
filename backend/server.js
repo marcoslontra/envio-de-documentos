@@ -41,6 +41,11 @@ const upload = multer({ storage: storage });
 
 // Carrega as credenciais da conta de serviço
 const keyPath = path.join(__dirname, 'config/service-account-key.json');
+
+// Depuração: imprime o caminho do arquivo de chave
+console.log(`Caminho para a chave de serviço: ${keyPath}`);  // Aqui você verá o caminho no log
+
+// Agora, carrega o arquivo de chave
 const credentials = require(keyPath);
 
 const auth = new google.auth.GoogleAuth({
