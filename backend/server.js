@@ -159,7 +159,7 @@ app.post('/upload', upload.fields([
 });
 
 // Servir arquivos estáticos da pasta frontend
-app.use(express.static(path.join(__dirname, '../frontend')));
+app.use(express.static(path.join(__dirname, 'frontend')));
 
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
