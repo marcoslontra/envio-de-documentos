@@ -70,17 +70,6 @@ async function uploadToMega(filePath, remoteFileName) {
     });
 }
 
-// Função para garantir que a pasta exista no Mega e, se não, criar
-async function ensureMegaFolderExists(folderPath) {
-    try {
-        const folder = await storageMega.get(folderPath); // Tenta obter a pasta
-        return folder; // Se existir, retorna a pasta
-    } catch (err) {
-        console.log(`Pasta não encontrada, criando nova pasta: ${folderPath}`);
-        return storageMega.createFolder(folderPath); // Se não existir, cria a pasta
-    }
-}
-
 // Rota para upload de documentos
 app.post('/upload', upload.fields([
     { name: 'rgCpf' },
@@ -104,10 +93,7 @@ app.post('/upload', upload.fields([
         const nomeCompleto = req.body.nomeCompleto.trim().replace(/\s+/g, '_');
         const megaFolderPath = `/${nomeCompleto}`;
 
-        // Garantir que a pasta exista no Mega
-        const megaFolder = await ensureMegaFolderExists(megaFolderPath);
-
-        // Faz o upload dos arquivos para o Mega
+        // Faz o upload de um arquivo para garantir que a pasta seja criada
         const files = req.files;
         for (const fileField in files) {
             for (const file of files[fileField]) {
