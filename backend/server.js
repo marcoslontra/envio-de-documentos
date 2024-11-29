@@ -75,11 +75,11 @@ async function uploadToMega(filePath, remoteFileName, folder) {
     }
 }
 
-// Função para obter a pasta compartilhada e criar subpastas
+// Função para acessar a pasta compartilhada pública
 async function getMegaFolder() {
     try {
-        // Acessar o link da pasta compartilhada
-        const folder = await storageMega.getFolder('S3RGxAYK#6Uq1tzFW64kERSicRtL4kA');
+        // Acessar a pasta compartilhada usando o link
+        const folder = await mega.loadLink('https://mega.nz/filerequest/SagrFJ9OnDU');
         console.log("Pasta compartilhada acessada com sucesso.");
         return folder;
     } catch (err) {
