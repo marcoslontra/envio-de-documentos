@@ -6,8 +6,8 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const mega = require('megajs');
 const bodyParser = require('body-parser');
+const uploadcare = require('uploadcare');  // Importa o SDK do Uploadcare
 
 // Configuração do servidor Express
 const app = express();
@@ -41,33 +41,19 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Configuração do Mega.nz (autenticação com e-mail e senha)
-const storageMega = mega({
-    email: 'marcoslontra19@gmail.com',
-    password: 'marcos9692'
-});
+// Configuração do Uploadcare (Chave pública)
+uploadcare.api.setPublicKey('a175e2b2ae361b86b5e7');  // Substitua pela sua chave pública
 
-// Função para fazer o upload de um arquivo para o Mega.nz
-async function uploadToMega(filePath, remoteFileName) {
-    const uploadStream = storageMega.upload({
-        name: remoteFileName,  // Nome do arquivo no Mega
-        allowUploadBuffering: true  // Permite o buffering do upload
-    });
-
-    const fileStream = fs.createReadStream(filePath);
-    fileStream.pipe(uploadStream);
-
-    return new Promise((resolve, reject) => {
-        uploadStream.on('complete', () => {
-            console.log(`Upload completo para o Mega: ${remoteFileName}`);
-            resolve();
-        });
-
-        uploadStream.on('error', (err) => {
-            console.error('Erro ao enviar arquivo para o Mega:', err);
-            reject(err);
-        });
-    });
+// Função para fazer o upload de um arquivo para o Uploadcare
+async function uploadToUploadcare(filePath) {
+    try {
+        const response = await uploadcare.api.upload(filePath);  // Envia o arquivo para Uploadcare
+        console.log('Arquivo enviado com sucesso para o Uploadcare:', response);
+        return response;  // Aqui você terá o URL do arquivo e outras informações
+    } catch (error) {
+        console.error('Erro ao enviar arquivo para o Uploadcare:', error);
+        throw error;
+    }
 }
 
 // Rota para upload de documentos
@@ -77,15 +63,14 @@ app.post('/upload', upload.any(), async (req, res) => {
             return res.status(400).send('Nenhum arquivo foi enviado!');
         }
 
-        // Faz o upload de cada arquivo para o Mega
+        // Faz o upload de cada arquivo para o Uploadcare
         for (const file of req.files) {
             const filePath = path.join(uploadDir, file.filename);
-            const remoteFileName = file.filename;  // Nome do arquivo no Mega
-            console.log(`Enviando o arquivo: ${file.filename} para o Mega`);
-            await uploadToMega(filePath, remoteFileName);
+            console.log(`Enviando o arquivo: ${file.filename} para o Uploadcare`);
+            await uploadToUploadcare(filePath);  // Chama a função para enviar o arquivo
         }
 
-        res.status(200).send('Arquivos enviados com sucesso para o Mega!');
+        res.status(200).send('Arquivos enviados com sucesso para o Uploadcare!');
     } catch (err) {
         console.error('Erro ao processar o upload:', err);
         res.status(500).send('Erro no servidor. Tente novamente mais tarde.');
