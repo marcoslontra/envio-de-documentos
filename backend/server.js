@@ -46,9 +46,10 @@ const client = uploadcare(process.env.UPLOADCARE_PUBLIC_KEY);  // Usando variáv
 // Função para fazer o upload de um arquivo para o Uploadcare
 async function uploadToUploadcare(filePath) {
     try {
-        const response = await client.uploadFile(filePath);  // Envia o arquivo para Uploadcare
-        console.log('Arquivo enviado com sucesso para o Uploadcare:', response);
-        return response;  // Aqui você terá o URL do arquivo e outras informações
+        // Envia o arquivo para o Uploadcare diretamente
+        const file = await uploadcare.uploadFile(filePath);
+        console.log('Arquivo enviado com sucesso para o Uploadcare:', file);
+        return file;  // Aqui você terá o URL do arquivo e outras informações
     } catch (error) {
         console.error('Erro ao enviar arquivo para o Uploadcare:', error);
         throw error;
