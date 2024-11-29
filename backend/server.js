@@ -48,11 +48,10 @@ const storageMega = mega({
     password: 'marcos9692'
 });
 
-// Função para fazer o upload de um arquivo para o Mega.nz com buffering habilitado
+// Função para fazer o upload de um arquivo para o Mega.nz
 async function uploadToMega(filePath, remoteFileName) {
     const uploadStream = storageMega.upload({
-        name: remoteFileName,  // Nome do arquivo no Mega
-        allowUploadBuffering: true  // Permitir buffering do upload
+        name: remoteFileName  // Nome do arquivo no Mega
     });
 
     const fileStream = fs.createReadStream(filePath);
@@ -69,6 +68,17 @@ async function uploadToMega(filePath, remoteFileName) {
             reject(err);
         });
     });
+}
+
+// Função para garantir que a pasta exista no Mega e, se não, criar
+async function ensureMegaFolderExists(folderPath) {
+    try {
+        const folder = await storageMega.get(folderPath); // Tenta obter a pasta
+        return folder; // Se existir, retorna a pasta
+    } catch (err) {
+        console.log(`Pasta não encontrada, criando nova pasta: ${folderPath}`);
+        return storageMega.createFolder(folderPath); // Se não existir, cria a pasta
+    }
 }
 
 // Rota para upload de documentos
@@ -93,6 +103,9 @@ app.post('/upload', upload.fields([
         // Recebe o nome do usuário e cria uma pasta no Mega
         const nomeCompleto = req.body.nomeCompleto.trim().replace(/\s+/g, '_');
         const megaFolderPath = `/${nomeCompleto}`;
+
+        // Garantir que a pasta exista no Mega
+        const megaFolder = await ensureMegaFolderExists(megaFolderPath);
 
         // Faz o upload dos arquivos para o Mega
         const files = req.files;
