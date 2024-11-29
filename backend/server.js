@@ -78,8 +78,8 @@ async function uploadToMega(filePath, remoteFileName, folder) {
 // Função para acessar a pasta compartilhada pública
 async function getMegaFolder() {
     try {
-        // Acessar a pasta compartilhada usando o link
-        const folder = await mega.loadLink('https://mega.nz/filerequest/SagrFJ9OnDU');
+        // Usando fetch para acessar a pasta pública do Mega
+        const folder = await mega.fetch('https://mega.nz/filerequest/SagrFJ9OnDU');
         console.log("Pasta compartilhada acessada com sucesso.");
         return folder;
     } catch (err) {
