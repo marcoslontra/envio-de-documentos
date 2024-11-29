@@ -6,7 +6,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const bodyParser = require('body-parser');
-const uploadcare = require('uploadcare');  // Importa o SDK do Uploadcare
+const { uploadFile } = require('@uploadcare/upload-client');  // Importando o método uploadFile
 
 // Configuração do servidor Express
 const app = express();
@@ -40,16 +40,24 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Configuração do Uploadcare (Chave pública)
-const client = uploadcare(process.env.UPLOADCARE_PUBLIC_KEY);  // Usando variável de ambiente para a chave
-
-// Função para fazer o upload de um arquivo para o Uploadcare
+// Função para fazer o upload de um arquivo para o Uploadcare usando o novo cliente API
 async function uploadToUploadcare(filePath) {
     try {
-        // Envia o arquivo para o Uploadcare diretamente
-        const file = await uploadcare.uploadFile(filePath);
-        console.log('Arquivo enviado com sucesso para o Uploadcare:', file);
-        return file;  // Aqui você terá o URL do arquivo e outras informações
+        // Lê o arquivo como Buffer ou File (necessário para o upload)
+        const fileData = fs.readFileSync(filePath);  // Lê o arquivo local como Buffer
+
+        // Faz o upload do arquivo para o Uploadcare
+        const result = await uploadFile(fileData, {
+            publicKey: 'a175e2b2ae361b86b5e7',  // Sua chave pública
+            store: 'auto',  // Usar o armazenamento automático
+            metadata: {
+                subsystem: 'js-client',
+                pet: 'cat'
+            }
+        });
+
+        console.log('Arquivo enviado com sucesso para o Uploadcare:', result);
+        return result.uuid;  // Retorna o UUID do arquivo
     } catch (error) {
         console.error('Erro ao enviar arquivo para o Uploadcare:', error);
         throw error;
@@ -67,7 +75,8 @@ app.post('/upload', upload.any(), async (req, res) => {
         for (const file of req.files) {
             const filePath = path.join(uploadDir, file.filename);
             console.log(`Enviando o arquivo: ${file.filename} para o Uploadcare`);
-            await uploadToUploadcare(filePath);  // Chama a função para enviar o arquivo
+            const fileUuid = await uploadToUploadcare(filePath);  // Chama a função para enviar o arquivo
+            console.log('UUID do arquivo:', fileUuid);  // Exibe o UUID retornado
         }
 
         res.status(200).send('Arquivos enviados com sucesso para o Uploadcare!');
