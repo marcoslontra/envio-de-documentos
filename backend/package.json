@@ -7,7 +7,7 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "@uploadcare/upload-client": "^1.0.0",  // Dependência correta
+    "@uploadcare/upload-client": "^1.0.0",
     "aws-sdk": "^2.1692.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
