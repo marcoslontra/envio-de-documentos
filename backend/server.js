@@ -7,7 +7,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const bodyParser = require('body-parser');
-const { Uploadcare } = require('uploadcare');  // Importa o SDK do Uploadcare de forma correta
+const uploadcare = require('uploadcare');  // Importa o SDK do Uploadcare
 
 // Configuração do servidor Express
 const app = express();
@@ -42,9 +42,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Configuração do Uploadcare (Chave pública)
-const uploadcare = new Uploadcare({
-    publicKey: 'a175e2b2ae361b86b5e7',  // Substitua pela sua chave pública
-    secretKey: '9af645b0ca2a4b1ede34'  // Se necessário, use sua chave secreta
+uploadcare.configure({
+    publicKey: 'a175e2b2ae361b86b5e7'  // Substitua pela sua chave pública
 });
 
 // Função para fazer o upload de um arquivo para o Uploadcare
