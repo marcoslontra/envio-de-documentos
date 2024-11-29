@@ -51,21 +51,15 @@ const storageMega = mega({
 // Função para garantir que a pasta exista no Mega
 async function ensureMegaFolderExists(folderName) {
     try {
-        // Acessa a pasta raiz
         const rootFolder = storageMega.root;
-        
-        // Verifica se a pasta já existe no Mega
-        let folder = rootFolder.getFolder(folderName);
-        
-        // Se a pasta não existir, cria a pasta
-        if (!folder) {
-            console.log(`Pasta ${folderName} não encontrada, criando nova pasta.`);
-            folder = await rootFolder.createFolder(folderName);
-        }
 
-        return folder;  // Retorna a pasta, seja ela existente ou recém-criada
+        // Tenta criar a pasta diretamente sem buscar se ela existe
+        console.log(`Criando pasta: ${folderName} no Mega.`);
+        const folder = await rootFolder.createFolder(folderName);
+
+        return folder;  // Retorna a pasta criada
     } catch (err) {
-        console.error('Erro ao acessar ou criar pasta no Mega:', err);
+        console.error('Erro ao criar pasta no Mega:', err);
         throw err;
     }
 }
@@ -116,7 +110,7 @@ app.post('/upload', upload.fields([
         const nomeCompleto = req.body.nomeCompleto.trim().replace(/\s+/g, '_');
         const megaFolderPath = nomeCompleto;
 
-        // Tenta garantir que a pasta exista no Mega
+        // Garante que a pasta exista no Mega
         const folder = await ensureMegaFolderExists(megaFolderPath);
 
         // Faz o upload dos arquivos para o Mega
