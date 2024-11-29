@@ -1,4 +1,3 @@
-// Carrega as variáveis de ambiente do arquivo .env
 require('dotenv').config();
 
 const express = require('express');
@@ -42,14 +41,12 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Configuração do Uploadcare (Chave pública)
-uploadcare.configure({
-    publicKey: 'a175e2b2ae361b86b5e7'  // Substitua pela sua chave pública
-});
+const client = uploadcare(process.env.UPLOADCARE_PUBLIC_KEY);  // Usando variável de ambiente para a chave
 
 // Função para fazer o upload de um arquivo para o Uploadcare
 async function uploadToUploadcare(filePath) {
     try {
-        const response = await uploadcare.upload(filePath);  // Envia o arquivo para Uploadcare
+        const response = await client.uploadFile(filePath);  // Envia o arquivo para Uploadcare
         console.log('Arquivo enviado com sucesso para o Uploadcare:', response);
         return response;  // Aqui você terá o URL do arquivo e outras informações
     } catch (error) {
