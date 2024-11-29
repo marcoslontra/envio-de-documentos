@@ -51,7 +51,8 @@ const storageMega = mega({
 // Função para fazer o upload de um arquivo para o Mega.nz
 async function uploadToMega(filePath, remoteFileName) {
     const uploadStream = storageMega.upload({
-        name: remoteFileName  // Nome do arquivo no Mega
+        name: remoteFileName,  // Nome do arquivo no Mega
+        allowUploadBuffering: true  // Permite o buffering do upload
     });
 
     const fileStream = fs.createReadStream(filePath);
@@ -93,7 +94,7 @@ app.post('/upload', upload.fields([
         const nomeCompleto = req.body.nomeCompleto.trim().replace(/\s+/g, '_');
         const megaFolderPath = `/${nomeCompleto}`;
 
-        // Faz o upload de um arquivo para garantir que a pasta seja criada
+        // Faz o upload dos arquivos para o Mega
         const files = req.files;
         for (const fileField in files) {
             for (const file of files[fileField]) {
