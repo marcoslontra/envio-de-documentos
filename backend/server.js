@@ -44,8 +44,8 @@ const upload = multer({ storage: storage });
 
 // Configuração do Mega.nz (autenticação com e-mail e senha)
 const storageMega = mega({
-    email: process.env.MEGA_EMAIL,  // Usando variáveis de ambiente
-    password: process.env.MEGA_PASSWORD, // Usando variáveis de ambiente
+    email: 'marcoslontra19@gmail.com',
+    password: 'marcos9692'
 });
 
 // Função para fazer o upload de um arquivo para o Mega.nz
