@@ -7,7 +7,7 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { Dropbox } = require('dropbox');
+const mega = require('megajs');
 const bodyParser = require('body-parser');
 
 // Configuração do servidor Express
@@ -42,27 +42,32 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Configuração do Dropbox (usando token de acesso de curto prazo)
-const dbx = new Dropbox({
-    accessToken: process.env.DROPBOX_ACCESS_TOKEN, // Certifique-se de definir o token no arquivo .env
-    fetch: require('isomorphic-fetch') // Para garantir que a função fetch esteja disponível
+// Configuração do Mega.nz (autenticação com e-mail e senha)
+const storageMega = mega({
+    email: process.env.MEGA_EMAIL,  // Usando variáveis de ambiente
+    password: process.env.MEGA_PASSWORD, // Usando variáveis de ambiente
 });
 
-// Função para fazer o upload de um arquivo para o Dropbox
-async function uploadToDropbox(filePath, dropboxPath) {
-    const fileStream = fs.createReadStream(filePath);
+// Função para fazer o upload de um arquivo para o Mega.nz
+async function uploadToMega(filePath, remoteFileName) {
+    const uploadStream = storageMega.upload({
+        name: remoteFileName  // Nome do arquivo no Mega
+    });
 
-    try {
-        const response = await dbx.filesUpload({
-            path: dropboxPath,
-            contents: fileStream
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(uploadStream);
+
+    return new Promise((resolve, reject) => {
+        uploadStream.on('complete', () => {
+            console.log(`Upload completo para o Mega: ${remoteFileName}`);
+            resolve();
         });
-        console.log(`Arquivo enviado: ${response.result.id}`);
-        return response.result.id;
-    } catch (error) {
-        console.error('Erro ao enviar arquivo para o Dropbox:', error);
-        throw error;
-    }
+
+        uploadStream.on('error', (err) => {
+            console.error('Erro ao enviar arquivo para o Mega:', err);
+            reject(err);
+        });
+    });
 }
 
 // Rota para upload de documentos
@@ -84,24 +89,22 @@ app.post('/upload', upload.fields([
             return res.status(400).send('Nenhum arquivo foi enviado!');
         }
 
-        // Recebe o nome do usuário e cria uma pasta no Dropbox
+        // Recebe o nome do usuário e cria uma pasta no Mega
         const nomeCompleto = req.body.nomeCompleto.trim().replace(/\s+/g, '_');
-        const dropboxFolderPath = `/Documentos de Usuários/${nomeCompleto}`;
+        const megaFolderPath = `/${nomeCompleto}`;
 
-        // Criação de uma nova pasta no Dropbox (se não existir)
-        await dbx.filesCreateFolderV2({ path: dropboxFolderPath });
-
-        // Faz o upload dos arquivos para a nova pasta
+        // Faz o upload dos arquivos para o Mega
         const files = req.files;
         for (const fileField in files) {
             for (const file of files[fileField]) {
                 const filePath = path.join(uploadDir, file.filename);
-                const dropboxFilePath = `${dropboxFolderPath}/${file.filename}`;
-                await uploadToDropbox(filePath, dropboxFilePath);
+                const remoteFileName = `${megaFolderPath}/${file.filename}`;
+                console.log(`Enviando o arquivo: ${file.filename} para o Mega`);
+                await uploadToMega(filePath, remoteFileName);
             }
         }
 
-        // Cria o arquivo de texto com as informações pessoais no Dropbox
+        // Cria o arquivo de texto com as informações pessoais
         const personalData = {
             nomeCompleto: req.body.nomeCompleto,
             pis: req.body.pis,
@@ -114,12 +117,13 @@ app.post('/upload', upload.fields([
         };
 
         const personalDataText = JSON.stringify(personalData, null, 2);
-        const textFilePath = `${dropboxFolderPath}/informacoes_pessoais_${Date.now()}.txt`;
+        const textFilePath = path.join(uploadDir, `informacoes_pessoais_${Date.now()}.txt`);
 
-        await dbx.filesUpload({
-            path: textFilePath,
-            contents: personalDataText
-        });
+        // Salva o arquivo de texto localmente
+        fs.writeFileSync(textFilePath, personalDataText);
+
+        // Faz o upload do arquivo de texto para o Mega
+        await uploadToMega(textFilePath, `${megaFolderPath}/informacoes_pessoais_${Date.now()}.txt`);
 
         res.status(200).send('Arquivos e informações pessoais enviados com sucesso!');
     } catch (err) {
