@@ -44,14 +44,15 @@ const upload = multer({ storage: storage });
 
 // Configuração do Mega.nz (autenticação com e-mail e senha)
 const storageMega = mega({
-    email: process.env.MEGA_EMAIL,  // Usando variáveis de ambiente
-    password: process.env.MEGA_PASSWORD, // Usando variáveis de ambiente
+    email: 'marcoslontra19@gmail.com',
+    password: 'marcos9692'
 });
 
-// Função para fazer o upload de um arquivo para o Mega.nz
+// Função para fazer o upload de um arquivo para o Mega.nz com buffering habilitado
 async function uploadToMega(filePath, remoteFileName) {
     const uploadStream = storageMega.upload({
-        name: remoteFileName  // Nome do arquivo no Mega
+        name: remoteFileName,  // Nome do arquivo no Mega
+        allowUploadBuffering: true  // Permitir buffering do upload
     });
 
     const fileStream = fs.createReadStream(filePath);
