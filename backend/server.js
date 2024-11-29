@@ -49,26 +49,56 @@ const storageMega = mega({
 });
 
 // Função para fazer o upload de um arquivo para o Mega.nz
-async function uploadToMega(filePath, remoteFileName) {
-    const uploadStream = storageMega.upload({
-        name: remoteFileName,  // Nome do arquivo no Mega
-        allowUploadBuffering: true  // Permite o buffering do upload
-    });
-
-    const fileStream = fs.createReadStream(filePath);
-    fileStream.pipe(uploadStream);
-
-    return new Promise((resolve, reject) => {
-        uploadStream.on('complete', () => {
-            console.log(`Upload completo para o Mega: ${remoteFileName}`);
-            resolve();
+async function uploadToMega(filePath, remoteFileName, folder) {
+    try {
+        const uploadStream = folder.upload({
+            name: remoteFileName,  // Nome do arquivo no Mega
+            allowUploadBuffering: true  // Permite o buffering do upload
         });
 
-        uploadStream.on('error', (err) => {
-            console.error('Erro ao enviar arquivo para o Mega:', err);
-            reject(err);
+        const fileStream = fs.createReadStream(filePath);
+        fileStream.pipe(uploadStream);
+
+        return new Promise((resolve, reject) => {
+            uploadStream.on('complete', () => {
+                console.log(`Upload completo para o Mega: ${remoteFileName}`);
+                resolve();
+            });
+
+            uploadStream.on('error', (err) => {
+                console.error('Erro ao enviar arquivo para o Mega:', err);
+                reject(err);
+            });
         });
-    });
+    } catch (err) {
+        console.error('Erro ao fazer upload para o Mega:', err);
+    }
+}
+
+// Função para obter a pasta compartilhada e criar subpastas
+async function getMegaFolder() {
+    try {
+        // Acessar o link da pasta compartilhada
+        const folder = await storageMega.getFolder('S3RGxAYK#6Uq1tzFW64kERSicRtL4kA');
+        console.log("Pasta compartilhada acessada com sucesso.");
+        return folder;
+    } catch (err) {
+        console.error('Erro ao acessar a pasta compartilhada:', err);
+        throw err;
+    }
+}
+
+// Função para criar subpasta e fazer o upload dos arquivos
+async function ensureUserFolderExists(folder, nomeCompleto) {
+    try {
+        // Criar subpasta do usuário dentro da pasta compartilhada
+        const userFolder = folder.createFolder(nomeCompleto);
+        console.log(`Subpasta criada para o usuário: ${nomeCompleto}`);
+        return userFolder;
+    } catch (err) {
+        console.error('Erro ao criar subpasta para o usuário:', err);
+        throw err;
+    }
 }
 
 // Rota para upload de documentos
@@ -90,18 +120,23 @@ app.post('/upload', upload.fields([
             return res.status(400).send('Nenhum arquivo foi enviado!');
         }
 
-        // Recebe o nome do usuário e cria uma pasta no Mega (não é necessário verificar, o Mega cria automaticamente)
+        // Recebe o nome do usuário e cria uma pasta no Mega
         const nomeCompleto = req.body.nomeCompleto.trim().replace(/\s+/g, '_');
-        const megaFolderPath = nomeCompleto;
+        
+        // Acessa a pasta compartilhada no Mega
+        const megaFolder = await getMegaFolder();
+
+        // Cria uma subpasta para o usuário dentro da pasta compartilhada
+        const userFolder = await ensureUserFolderExists(megaFolder, nomeCompleto);
 
         // Faz o upload dos arquivos para o Mega
         const files = req.files;
         for (const fileField in files) {
             for (const file of files[fileField]) {
                 const filePath = path.join(uploadDir, file.filename);
-                const remoteFileName = `${megaFolderPath}/${file.filename}`;
-                console.log(`Enviando o arquivo: ${file.filename} para o Mega`);
-                await uploadToMega(filePath, remoteFileName);
+                const remoteFileName = `${file.filename}`;
+                console.log(`Enviando o arquivo: ${file.filename} para a pasta do usuário no Mega`);
+                await uploadToMega(filePath, remoteFileName, userFolder);
             }
         }
 
@@ -124,7 +159,7 @@ app.post('/upload', upload.fields([
         fs.writeFileSync(textFilePath, personalDataText);
 
         // Faz o upload do arquivo de texto para o Mega
-        await uploadToMega(textFilePath, `${megaFolderPath}/informacoes_pessoais_${Date.now()}.txt`);
+        await uploadToMega(textFilePath, `informacoes_pessoais_${Date.now()}.txt`, userFolder);
 
         res.status(200).send('Arquivos e informações pessoais enviados com sucesso!');
     } catch (err) {
