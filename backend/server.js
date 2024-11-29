@@ -44,8 +44,8 @@ const upload = multer({ storage: storage });
 
 // Configuração do Mega.nz (autenticação com e-mail e senha)
 const storageMega = mega({
-    email: 'marcoslontra2@gmail.com',  // Coloque seu e-mail do Mega aqui
-    password: 'marcos9692',            // Coloque sua senha aqui
+    email: process.env.MEGA_EMAIL,  // Usando variáveis de ambiente
+    password: process.env.MEGA_PASSWORD, // Usando variáveis de ambiente
 });
 
 // Função para fazer o upload de um arquivo para o Mega.nz
@@ -99,11 +99,12 @@ app.post('/upload', upload.fields([
             for (const file of files[fileField]) {
                 const filePath = path.join(uploadDir, file.filename);
                 const remoteFileName = `${megaFolderPath}/${file.filename}`;
+                console.log(`Enviando o arquivo: ${file.filename} para o Mega`);
                 await uploadToMega(filePath, remoteFileName);
             }
         }
 
-        // Cria o arquivo de texto com as informações pessoais no Mega
+        // Cria o arquivo de texto com as informações pessoais
         const personalData = {
             nomeCompleto: req.body.nomeCompleto,
             pis: req.body.pis,
@@ -116,9 +117,13 @@ app.post('/upload', upload.fields([
         };
 
         const personalDataText = JSON.stringify(personalData, null, 2);
-        const textFilePath = `${megaFolderPath}/informacoes_pessoais_${Date.now()}.txt`;
+        const textFilePath = path.join(uploadDir, `informacoes_pessoais_${Date.now()}.txt`);
 
-        await uploadToMega(textFilePath, personalDataText);
+        // Salva o arquivo de texto localmente
+        fs.writeFileSync(textFilePath, personalDataText);
+
+        // Faz o upload do arquivo de texto para o Mega
+        await uploadToMega(textFilePath, `${megaFolderPath}/informacoes_pessoais_${Date.now()}.txt`);
 
         res.status(200).send('Arquivos e informações pessoais enviados com sucesso!');
     } catch (err) {
