@@ -48,10 +48,11 @@ const storageMega = mega({
     password: 'marcos9692'
 });
 
-// Função para fazer o upload de um arquivo para o Mega.nz
+// Função para fazer o upload de um arquivo para o Mega.nz com buffering habilitado
 async function uploadToMega(filePath, remoteFileName) {
     const uploadStream = storageMega.upload({
-        name: remoteFileName  // Nome do arquivo no Mega
+        name: remoteFileName,  // Nome do arquivo no Mega
+        allowUploadBuffering: true  // Permitir buffering do upload
     });
 
     const fileStream = fs.createReadStream(filePath);
