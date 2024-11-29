@@ -48,22 +48,6 @@ const storageMega = mega({
     password: 'marcos9692'
 });
 
-// Função para garantir que a pasta exista no Mega
-async function ensureMegaFolderExists(folderName) {
-    try {
-        const rootFolder = storageMega.root;
-
-        // Tenta criar a pasta diretamente sem buscar se ela existe
-        console.log(`Criando pasta: ${folderName} no Mega.`);
-        const folder = await rootFolder.createFolder(folderName);
-
-        return folder;  // Retorna a pasta criada
-    } catch (err) {
-        console.error('Erro ao criar pasta no Mega:', err);
-        throw err;
-    }
-}
-
 // Função para fazer o upload de um arquivo para o Mega.nz
 async function uploadToMega(filePath, remoteFileName) {
     const uploadStream = storageMega.upload({
@@ -106,12 +90,9 @@ app.post('/upload', upload.fields([
             return res.status(400).send('Nenhum arquivo foi enviado!');
         }
 
-        // Recebe o nome do usuário e cria uma pasta no Mega
+        // Recebe o nome do usuário e cria uma pasta no Mega (não é necessário verificar, o Mega cria automaticamente)
         const nomeCompleto = req.body.nomeCompleto.trim().replace(/\s+/g, '_');
         const megaFolderPath = nomeCompleto;
-
-        // Garante que a pasta exista no Mega
-        const folder = await ensureMegaFolderExists(megaFolderPath);
 
         // Faz o upload dos arquivos para o Mega
         const files = req.files;
