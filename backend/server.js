@@ -44,7 +44,7 @@ const upload = multer({ storage: storage });
 // Configuração do Uploadcare (Chave pública)
 const uploadcare = new Uploadcare({
     publicKey: 'a175e2b2ae361b86b5e7',  // Substitua pela sua chave pública
-    secretKey: process.env.UPLOADCARE_SECRET_KEY  // Se necessário, use sua chave secreta
+    secretKey: '9af645b0ca2a4b1ede34'  // Se necessário, use sua chave secreta
 });
 
 // Função para fazer o upload de um arquivo para o Uploadcare
