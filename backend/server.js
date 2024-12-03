@@ -6,13 +6,14 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const bodyParser = require('body-parser');
-const filestack = require('filestack-js'); // Importando o Filestack
+const axios = require('axios'); // Usando axios para fazer requisições HTTP para o Filestack
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Configuração do Filestack com a sua chave
-const client = filestack.init('ApgANrOfTOWJBXY2mERX1z');
+const FILSTACK_API_KEY = 'ApgANrOfTOWJBXY2mERX1z';
+const FILSTACK_UPLOAD_URL = 'https://www.filestackapi.com/api/store/S3'; // Endpoint da API do Filestack para upload
 
 app.use(cors({
     origin: '*',
@@ -40,15 +41,22 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Função para enviar o arquivo para o Filestack
+// Função para enviar o arquivo para o Filestack usando a API REST
 async function uploadToFilestack(filePath) {
     try {
-        const fileData = fs.readFileSync(filePath);  // Lê o arquivo local como Buffer
+        // Lê o arquivo local como um Buffer
+        const fileData = fs.readFileSync(filePath);
 
-        // Faz o upload para o Filestack
-        const result = await client.upload(fileData);  // Faz o upload do arquivo para o Filestack
+        // Faz o upload para o Filestack usando a API REST
+        const formData = new FormData();
+        formData.append('file', fileData, path.basename(filePath));
+        formData.append('apikey', FILSTACK_API_KEY);
 
-        return result.url;  // Retorna a URL do arquivo no Filestack
+        const response = await axios.post(FILSTACK_UPLOAD_URL, formData, {
+            headers: formData.getHeaders()
+        });
+
+        return response.data.url;  // Retorna a URL do arquivo no Filestack
     } catch (error) {
         console.error('Erro ao enviar para o Filestack:', error);
         throw error;
