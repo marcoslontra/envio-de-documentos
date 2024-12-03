@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload de Documentos</title>
-    <link rel="stylesheet" href="styles.css">  <!-- Link para o arquivo CSS -->
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.filestackcontent.com/filestack.js"></script> <!-- Incluir script do FileStack -->
 </head>
 <body>
     <div class="container">
@@ -13,45 +14,43 @@
             <!-- Documentos obrigatórios -->
             <fieldset>
                 <legend>Documentos Obrigatórios</legend>
-
                 <label for="rgCpf">RG ou CPF ou CNH:</label>
-                <input type="file" id="rgCpf" name="rgCpf">
+                <input type="file" id="rgCpf" name="rgCpf" class="filestack-upload">
 
                 <label for="certidao">Certidão de Nascimento ou Casamento:</label>
-                <input type="file" id="certidao" name="certidao">
+                <input type="file" id="certidao" name="certidao" class="filestack-upload">
 
                 <label for="holerite">Comprovação de Renda (Holerite):</label>
-                <input type="file" id="holerite" name="holerite">
+                <input type="file" id="holerite" name="holerite" class="filestack-upload">
 
                 <label for="ir">Recibo e Declaração de Imposto de Renda:</label>
-                <input type="file" id="ir" name="ir">
+                <input type="file" id="ir" name="ir" class="filestack-upload">
 
                 <label for="faturaCartao">Comprovação de Renda Informal (Faturas de Cartão de Crédito):</label>
-                <input type="file" id="faturaCartao" name="faturaCartao">
+                <input type="file" id="faturaCartao" name="faturaCartao" class="filestack-upload">
 
                 <label for="endereco">Comprovante de Endereço:</label>
-                <input type="file" id="endereco" name="endereco">
+                <input type="file" id="endereco" name="endereco" class="filestack-upload">
 
                 <label for="ctps">Carteira de Trabalho Digital:</label>
-                <input type="file" id="ctps" name="ctps">
+                <input type="file" id="ctps" name="ctps" class="filestack-upload">
 
                 <label for="extratoFGTS">Extrato FGTS:</label>
-                <input type="file" id="extratoFGTS" name="extratoFGTS">
+                <input type="file" id="extratoFGTS" name="extratoFGTS" class="filestack-upload">
 
                 <label for="certidaoDependentes">Certidão de Nascimento e RG dos Dependentes:</label>
-                <input type="file" id="certidaoDependentes" name="certidaoDependentes">
+                <input type="file" id="certidaoDependentes" name="certidaoDependentes" class="filestack-upload">
 
                 <label for="cancelamento">Carta de Cancelamento de Análises de Financiamento:</label>
-                <input type="file" id="cancelamento" name="cancelamento">
+                <input type="file" id="cancelamento" name="cancelamento" class="filestack-upload">
 
                 <label for="autorizacao">Ficha de Autorização de Análise Bancária:</label>
-                <input type="file" id="autorizacao" name="autorizacao">
+                <input type="file" id="autorizacao" name="autorizacao" class="filestack-upload">
             </fieldset>
 
             <!-- Informações pessoais -->
             <fieldset>
                 <legend>Informações Pessoais</legend>
-
                 <label for="nomeCompleto">Nome Completo:</label>
                 <input type="text" id="nomeCompleto" name="nomeCompleto">
 
