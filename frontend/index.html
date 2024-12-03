@@ -5,8 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload de Documentos</title>
     <link rel="stylesheet" href="styles.css">  <!-- Link para o arquivo CSS -->
-    <!-- Inclusão do Filestack SDK -->
-    <script src="//static.filestackapi.com/filestack-js/3.x.x/filestack.min.js"></script>
+    <script src="//static.filestackapi.com/filestack-js/3.x.x/filestack.min.js"></script> <!-- Inclusão do Filestack SDK -->
+    <style>
+        /* Estilos para alinhar os botões de forma consistente */
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-bottom: 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        fieldset {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+
+        legend {
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -16,38 +53,60 @@
             <fieldset>
                 <legend>Documentos Obrigatórios</legend>
 
-                <label for="rgCpf">RG ou CPF ou CNH:</label>
-                <button type="button" id="rgCpf">Escolher Arquivo</button>
+                <div>
+                    <button type="button" id="rgCpf">Escolher Arquivo</button>
+                    <label for="rgCpf">RG ou CPF ou CNH:</label>
+                </div>
 
-                <label for="certidao">Certidão de Nascimento ou Casamento:</label>
-                <button type="button" id="certidao">Escolher Arquivo</button>
+                <div>
+                    <button type="button" id="certidao">Escolher Arquivo</button>
+                    <label for="certidao">Certidão de Nascimento ou Casamento:</label>
+                </div>
 
-                <label for="holerite">Comprovação de Renda (Holerite):</label>
-                <button type="button" id="holerite">Escolher Arquivo</button>
+                <div>
+                    <button type="button" id="holerite">Escolher Arquivo</button>
+                    <label for="holerite">Comprovação de Renda (Holerite):</label>
+                </div>
 
-                <label for="ir">Recibo e Declaração de Imposto de Renda:</label>
-                <button type="button" id="ir">Escolher Arquivo</button>
+                <div>
+                    <button type="button" id="ir">Escolher Arquivo</button>
+                    <label for="ir">Recibo e Declaração de Imposto de Renda:</label>
+                </div>
 
-                <label for="faturaCartao">Comprovação de Renda Informal (Faturas de Cartão de Crédito):</label>
-                <button type="button" id="faturaCartao">Escolher Arquivo</button>
+                <div>
+                    <button type="button" id="faturaCartao">Escolher Arquivo</button>
+                    <label for="faturaCartao">Comprovação de Renda Informal (Faturas de Cartão de Crédito):</label>
+                </div>
 
-                <label for="endereco">Comprovante de Endereço:</label>
-                <button type="button" id="endereco">Escolher Arquivo</button>
+                <div>
+                    <button type="button" id="endereco">Escolher Arquivo</button>
+                    <label for="endereco">Comprovante de Endereço:</label>
+                </div>
 
-                <label for="ctps">Carteira de Trabalho Digital:</label>
-                <button type="button" id="ctps">Escolher Arquivo</button>
+                <div>
+                    <button type="button" id="ctps">Escolher Arquivo</button>
+                    <label for="ctps">Carteira de Trabalho Digital:</label>
+                </div>
 
-                <label for="extratoFGTS">Extrato FGTS:</label>
-                <button type="button" id="extratoFGTS">Escolher Arquivo</button>
+                <div>
+                    <button type="button" id="extratoFGTS">Escolher Arquivo</button>
+                    <label for="extratoFGTS">Extrato FGTS:</label>
+                </div>
 
-                <label for="certidaoDependentes">Certidão de Nascimento e RG dos Dependentes:</label>
-                <button type="button" id="certidaoDependentes">Escolher Arquivo</button>
+                <div>
+                    <button type="button" id="certidaoDependentes">Escolher Arquivo</button>
+                    <label for="certidaoDependentes">Certidão de Nascimento e RG dos Dependentes:</label>
+                </div>
 
-                <label for="cancelamento">Carta de Cancelamento de Análises de Financiamento:</label>
-                <button type="button" id="cancelamento">Escolher Arquivo</button>
+                <div>
+                    <button type="button" id="cancelamento">Escolher Arquivo</button>
+                    <label for="cancelamento">Carta de Cancelamento de Análises de Financiamento:</label>
+                </div>
 
-                <label for="autorizacao">Ficha de Autorização de Análise Bancária:</label>
-                <button type="button" id="autorizacao">Escolher Arquivo</button>
+                <div>
+                    <button type="button" id="autorizacao">Escolher Arquivo</button>
+                    <label for="autorizacao">Ficha de Autorização de Análise Bancária:</label>
+                </div>
             </fieldset>
 
             <!-- Informações pessoais -->
