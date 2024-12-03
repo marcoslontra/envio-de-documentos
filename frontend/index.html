@@ -40,14 +40,14 @@
             color: #333;
         }
 
-        .upload-group {
+        .upload-group, .input-group {
             display: flex;
             flex-direction: column;
             gap: 20px; /* Espaçamento entre os itens */
             margin-top: 20px;
         }
 
-        .upload-item {
+        .upload-item, .input-item {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
@@ -75,9 +75,18 @@
             color: #555;
         }
 
+        input[type="text"], input[type="email"], input[type="tel"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+        }
+
         /* Responsividade */
         @media (max-width: 600px) {
-            .upload-item {
+            .upload-item, .input-item {
                 flex-direction: column;
                 align-items: flex-start;
             }
@@ -108,33 +117,28 @@
                         <button type="button" id="ir" class="file-picker-button">Escolher Arquivo</button>
                         <label for="ir">Recibo e Declaração de Imposto de Renda:</label>
                     </div>
-                    <div class="upload-item">
-                        <button type="button" id="faturaCartao" class="file-picker-button">Escolher Arquivo</button>
-                        <label for="faturaCartao">Comprovação de Renda Informal (Faturas de Cartão de Crédito):</label>
+                </div>
+            </fieldset>
+
+            <!-- Informações pessoais -->
+            <fieldset>
+                <legend>Informações Pessoais</legend>
+                <div class="input-group">
+                    <div class="input-item">
+                        <label for="nomeCompleto">Nome Completo:</label>
+                        <input type="text" id="nomeCompleto" name="nomeCompleto">
                     </div>
-                    <div class="upload-item">
-                        <button type="button" id="endereco" class="file-picker-button">Escolher Arquivo</button>
-                        <label for="endereco">Comprovante de Endereço:</label>
+                    <div class="input-item">
+                        <label for="pis">Número do PIS:</label>
+                        <input type="text" id="pis" name="pis">
                     </div>
-                    <div class="upload-item">
-                        <button type="button" id="ctps" class="file-picker-button">Escolher Arquivo</button>
-                        <label for="ctps">Carteira de Trabalho Digital:</label>
+                    <div class="input-item">
+                        <label for="email">E-mail:</label>
+                        <input type="email" id="email" name="email">
                     </div>
-                    <div class="upload-item">
-                        <button type="button" id="extratoFGTS" class="file-picker-button">Escolher Arquivo</button>
-                        <label for="extratoFGTS">Extrato FGTS:</label>
-                    </div>
-                    <div class="upload-item">
-                        <button type="button" id="certidaoDependentes" class="file-picker-button">Escolher Arquivo</button>
-                        <label for="certidaoDependentes">Certidão de Nascimento e RG dos Dependentes:</label>
-                    </div>
-                    <div class="upload-item">
-                        <button type="button" id="cancelamento" class="file-picker-button">Escolher Arquivo</button>
-                        <label for="cancelamento">Carta de Cancelamento de Análises de Financiamento:</label>
-                    </div>
-                    <div class="upload-item">
-                        <button type="button" id="autorizacao" class="file-picker-button">Escolher Arquivo</button>
-                        <label for="autorizacao">Ficha de Autorização de Análise Bancária:</label>
+                    <div class="input-item">
+                        <label for="telefone">Telefone:</label>
+                        <input type="tel" id="telefone" name="telefone">
                     </div>
                 </div>
             </fieldset>
