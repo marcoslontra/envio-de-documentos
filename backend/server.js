@@ -20,6 +20,7 @@ app.use(cors({
 
 // Configuração do body-parser para processar dados de formulário
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 // Configuração do multer para upload de arquivos
 const uploadDir = path.join(__dirname, 'uploads');
@@ -47,7 +48,7 @@ async function uploadToUploadcare(filePath, fileName) {
 
         // Faz o upload do arquivo para o Uploadcare
         const result = await uploadFile(fileData, {
-            publicKey: 'a175e2b2ae361b86b5e7',  // Sua chave pública
+            publicKey: process.env.UPLOADCARE_PUBLIC_KEY,  // Usar chave pública do .env
             store: 'auto',  // Usar o armazenamento automático
             metadata: {
                 subsystem: 'js-client',
@@ -64,8 +65,8 @@ async function uploadToUploadcare(filePath, fileName) {
     }
 }
 
-// Função para converter arquivos PDF para TXT, quando necessário
-async function convertPdfToTxt(fileUuid) {
+// Função para converter o PDF para PNG
+async function convertPdfToPng(fileUuid) {
     try {
         const response = await fetch(`https://api.uploadcare.com/convert/document/`, {
             method: 'POST',
@@ -74,7 +75,7 @@ async function convertPdfToTxt(fileUuid) {
                 'Authorization': `Uploadcare.Simple ${process.env.UPLOADCARE_PUBLIC_KEY}:${process.env.UPLOADCARE_SECRET_KEY}`
             },
             body: JSON.stringify({
-                paths: [`${fileUuid}/document/-/format/txt/`],
+                paths: [`${fileUuid}/document/-/format/png/`],  // Converter PDF para PNG
                 store: 1
             })
         });
@@ -82,7 +83,7 @@ async function convertPdfToTxt(fileUuid) {
         const result = await response.json();
         return result;  // Retorna o resultado da conversão
     } catch (error) {
-        console.error('Erro na conversão do PDF para TXT:', error);
+        console.error('Erro na conversão do PDF para PNG:', error);
         throw error;
     }
 }
@@ -94,21 +95,27 @@ app.post('/upload', upload.any(), async (req, res) => {
             return res.status(400).send('Nenhum arquivo foi enviado!');
         }
 
+        const { nomeInformacoesPessoais } = req.body;  // Captura o nome da pessoa a partir das informações pessoais
+
+        if (!nomeInformacoesPessoais) {
+            return res.status(400).send('Nome não fornecido nas Informações Pessoais!');
+        }
+
         // Faz o upload de cada arquivo para o Uploadcare
         for (const file of req.files) {
             const filePath = path.join(uploadDir, file.filename);
-            const fileName = file.originalname;  // Nome original do arquivo
+            let fileName = nomeInformacoesPessoais + path.extname(file.originalname);  // Nomeado com o nome da pessoa
 
             console.log(`Enviando o arquivo: ${file.filename} para o Uploadcare`);
 
-            // Se o arquivo for PDF, converta para PDF ou outro formato
+            // Se o arquivo for PDF, converta para PNG
             if (file.mimetype === 'application/pdf') {
                 const fileUuid = await uploadToUploadcare(filePath, fileName); // Faz o upload do arquivo PDF
                 console.log('UUID do arquivo PDF:', fileUuid);  // Exibe o UUID retornado
 
-                // Opcionalmente, faça a conversão para TXT se necessário
-                const conversionResult = await convertPdfToTxt(fileUuid);
-                console.log('Resultado da conversão do PDF:', conversionResult);
+                // Converte o PDF para PNG
+                const conversionResult = await convertPdfToPng(fileUuid);
+                console.log('Resultado da conversão do PDF para PNG:', conversionResult);
             } 
             // Se for o arquivo com informações pessoais, salve como TXT
             else if (file.mimetype === 'text/plain') {
