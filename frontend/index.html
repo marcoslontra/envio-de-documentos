@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload de Documentos</title>
     <link rel="stylesheet" href="styles.css">  <!-- Link para o arquivo CSS -->
+    <!-- Inclusão do Filestack SDK -->
+    <script src="//static.filestackapi.com/filestack-js/3.x.x/filestack.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -15,37 +17,37 @@
                 <legend>Documentos Obrigatórios</legend>
 
                 <label for="rgCpf">RG ou CPF ou CNH:</label>
-                <input type="file" id="rgCpf" name="rgCpf">
+                <button type="button" id="rgCpf">Escolher Arquivo</button>
 
                 <label for="certidao">Certidão de Nascimento ou Casamento:</label>
-                <input type="file" id="certidao" name="certidao">
+                <button type="button" id="certidao">Escolher Arquivo</button>
 
                 <label for="holerite">Comprovação de Renda (Holerite):</label>
-                <input type="file" id="holerite" name="holerite">
+                <button type="button" id="holerite">Escolher Arquivo</button>
 
                 <label for="ir">Recibo e Declaração de Imposto de Renda:</label>
-                <input type="file" id="ir" name="ir">
+                <button type="button" id="ir">Escolher Arquivo</button>
 
                 <label for="faturaCartao">Comprovação de Renda Informal (Faturas de Cartão de Crédito):</label>
-                <input type="file" id="faturaCartao" name="faturaCartao">
+                <button type="button" id="faturaCartao">Escolher Arquivo</button>
 
                 <label for="endereco">Comprovante de Endereço:</label>
-                <input type="file" id="endereco" name="endereco">
+                <button type="button" id="endereco">Escolher Arquivo</button>
 
                 <label for="ctps">Carteira de Trabalho Digital:</label>
-                <input type="file" id="ctps" name="ctps">
+                <button type="button" id="ctps">Escolher Arquivo</button>
 
                 <label for="extratoFGTS">Extrato FGTS:</label>
-                <input type="file" id="extratoFGTS" name="extratoFGTS">
+                <button type="button" id="extratoFGTS">Escolher Arquivo</button>
 
                 <label for="certidaoDependentes">Certidão de Nascimento e RG dos Dependentes:</label>
-                <input type="file" id="certidaoDependentes" name="certidaoDependentes">
+                <button type="button" id="certidaoDependentes">Escolher Arquivo</button>
 
                 <label for="cancelamento">Carta de Cancelamento de Análises de Financiamento:</label>
-                <input type="file" id="cancelamento" name="cancelamento">
+                <button type="button" id="cancelamento">Escolher Arquivo</button>
 
                 <label for="autorizacao">Ficha de Autorização de Análise Bancária:</label>
-                <input type="file" id="autorizacao" name="autorizacao">
+                <button type="button" id="autorizacao">Escolher Arquivo</button>
             </fieldset>
 
             <!-- Informações pessoais -->
@@ -86,5 +88,37 @@
     </div>
 
     <script src="script.js"></script> <!-- Link para o arquivo JavaScript -->
+
+    <script>
+        // Inicializando o Filestack File Picker
+        const client = filestack.init('ApgANrOfTOWJBXY2mERX1z');  // Substitua pela sua chave do Filestack
+
+        // Função para abrir o File Picker
+        function openFilePicker(fieldId) {
+            client.picker({
+                fromSources: ['local_file_system'],
+                accept: ['image/*', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+                maxFiles: 1,
+                onFileUploadFinished: (file) => {
+                    document.getElementById(fieldId).innerHTML = `Arquivo: ${file.filename}`;  // Exibe o nome do arquivo
+                    // Você pode aqui salvar a URL do arquivo para enviar com o formulário
+                    console.log('Arquivo enviado: ', file.url);
+                }
+            }).open();
+        }
+
+        // Atribuindo eventos aos botões para abrir o Filestack File Picker
+        document.getElementById('rgCpf').addEventListener('click', () => openFilePicker('rgCpf'));
+        document.getElementById('certidao').addEventListener('click', () => openFilePicker('certidao'));
+        document.getElementById('holerite').addEventListener('click', () => openFilePicker('holerite'));
+        document.getElementById('ir').addEventListener('click', () => openFilePicker('ir'));
+        document.getElementById('faturaCartao').addEventListener('click', () => openFilePicker('faturaCartao'));
+        document.getElementById('endereco').addEventListener('click', () => openFilePicker('endereco'));
+        document.getElementById('ctps').addEventListener('click', () => openFilePicker('ctps'));
+        document.getElementById('extratoFGTS').addEventListener('click', () => openFilePicker('extratoFGTS'));
+        document.getElementById('certidaoDependentes').addEventListener('click', () => openFilePicker('certidaoDependentes'));
+        document.getElementById('cancelamento').addEventListener('click', () => openFilePicker('cancelamento'));
+        document.getElementById('autorizacao').addEventListener('click', () => openFilePicker('autorizacao'));
+    </script>
 </body>
 </html>
