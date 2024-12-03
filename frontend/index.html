@@ -40,13 +40,14 @@
             color: #333;
         }
 
-        .upload-group, .info-group {
+        .upload-group {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 20px; /* Espaçamento entre os itens */
+            margin-top: 20px;
         }
 
-        .upload-item, .info-item {
+        .upload-item {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
@@ -61,6 +62,7 @@
             border-radius: 4px;
             cursor: pointer;
             text-align: center;
+            white-space: nowrap; /* Previne quebra de texto dentro do botão */
         }
 
         .file-picker-button:hover {
@@ -73,25 +75,12 @@
             color: #555;
         }
 
-        input, select {
-            flex-grow: 1;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        button#submit {
-            margin-top: 20px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        button#submit:hover {
-            background-color: #218838;
+        /* Responsividade */
+        @media (max-width: 600px) {
+            .upload-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
@@ -99,77 +88,77 @@
     <div class="container">
         <h1>Envio de Documentos</h1>
         <form id="uploadForm" enctype="multipart/form-data">
+            <!-- Documentos obrigatórios -->
             <fieldset>
                 <legend>Documentos Obrigatórios</legend>
                 <div class="upload-group">
                     <div class="upload-item">
                         <button type="button" id="rgCpf" class="file-picker-button">Escolher Arquivo</button>
-                        <label for="rgCpf">CPF e RG:</label>
+                        <label for="rgCpf">RG ou CPF ou CNH:</label>
                     </div>
-                    <!-- Adicione mais botões conforme necessário -->
+                    <div class="upload-item">
+                        <button type="button" id="certidao" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="certidao">Certidão de Nascimento ou Casamento:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="holerite" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="holerite">Comprovação de Renda (Holerite):</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="ir" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="ir">Recibo e Declaração de Imposto de Renda:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="faturaCartao" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="faturaCartao">Comprovação de Renda Informal (Faturas de Cartão de Crédito):</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="endereco" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="endereco">Comprovante de Endereço:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="ctps" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="ctps">Carteira de Trabalho Digital:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="extratoFGTS" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="extratoFGTS">Extrato FGTS:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="certidaoDependentes" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="certidaoDependentes">Certidão de Nascimento e RG dos Dependentes:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="cancelamento" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="cancelamento">Carta de Cancelamento de Análises de Financiamento:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="autorizacao" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="autorizacao">Ficha de Autorização de Análise Bancária:</label>
+                    </div>
                 </div>
             </fieldset>
-
-            <fieldset>
-                <legend>Informações Pessoais</legend>
-                <div class="info-group">
-                    <div class="info-item">
-                        <label for="nomeCompleto">Nome completo:</label>
-                        <input type="text" id="nomeCompleto" name="nomeCompleto" required>
-                    </div>
-                    <!-- Adicione mais campos conforme necessário -->
-                </div>
-            </fieldset>
-
-            <button type="button" id="submit">Enviar</button>
         </form>
     </div>
 
     <script>
-        const client = filestack.init('ApgANrOfTOWJBXY2mERX1z'); // Substitua pela sua API Key
+        // Inicializa o Filestack File Picker
+        const client = filestack.init('SUA_API_KEY'); // Substitua pela sua API Key
 
-        document.getElementById('submit').addEventListener('click', async () => {
-            const formData = new FormData(document.getElementById('uploadForm'));
-            const files = [];
-            
-            // Coletando arquivos do formulário
-            const fileInputs = document.querySelectorAll('input[type="file"]');
-            fileInputs.forEach(input => {
-                if (input.files.length > 0) {
-                    files.push(input.files[0]);
+        // Função para abrir o picker e exibir o nome do arquivo selecionado
+        function openFilePicker(buttonId) {
+            client.picker({
+                fromSources: ['local_file_system'],
+                accept: ['image/*', 'application/pdf'],
+                onFileUploadFinished: (file) => {
+                    console.log(`${buttonId}:`, file.url); // Aqui você pode manipular o resultado
                 }
-            });
+            }).open();
+        }
 
-            // Enviar os arquivos para o Filestack
-            try {
-                const filePromises = files.map(file => client.upload(file));
-                const uploadedFiles = await Promise.all(filePromises);
-
-                // Enviar as informações pessoais como arquivo de texto
-                const infoPessoais = {
-                    NomeCompleto: formData.get('nomeCompleto'),
-                    Telefone: formData.get('telefone'),
-                    DataNascimento: formData.get('dataNascimento'),
-                    PossuiFilhos: formData.get('possuiFilhos'),
-                    RendaCasal: formData.get('rendaCasal'),
-                    PossuiImovel: formData.get('possuiImovel'),
-                    TresAnosTrabalho: formData.get('tresAnosTrabalho'),
-                };
-
-                const infoTxt = Object.entries(infoPessoais)
-                    .map(([key, value]) => `${key}: ${value}`)
-                    .join('\n');
-
-                const blob = new Blob([infoTxt], { type: 'text/plain' });
-                const textFile = await client.upload(blob, { filename: 'informacoes_pessoais.txt' });
-
-                alert('Documentos e informações enviados com sucesso!');
-                console.log('Arquivos enviados:', uploadedFiles);
-                console.log('Informações pessoais enviadas:', textFile.url);
-
-            } catch (error) {
-                alert('Erro ao enviar informações: ' + error.message);
-            }
+        // Atribui eventos aos botões
+        document.querySelectorAll('.file-picker-button').forEach(button => {
+            button.addEventListener('click', (e) => openFilePicker(e.target.id));
         });
     </script>
 </body>
