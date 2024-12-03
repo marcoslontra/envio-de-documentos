@@ -4,46 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload de Documentos</title>
-    <link rel="stylesheet" href="styles.css">  <!-- Link para o arquivo CSS -->
-    <script src="//static.filestackapi.com/filestack-js/3.x.x/filestack.min.js"></script> <!-- Inclusão do Filestack SDK -->
+    <script src="//static.filestackapi.com/filestack-js/3.x.x/filestack.min.js"></script>
     <style>
-        /* Estilos para alinhar os botões de forma consistente */
-        label {
-            display: inline-block;
-            margin-left: 10px;
-            vertical-align: middle;
+        /* Estilo geral */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        fieldset {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        legend {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .upload-group {
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Espaçamento entre os itens */
+            margin-top: 20px;
+        }
+
+        .upload-item {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
         }
 
         .file-picker-button {
-            display: inline-block;
             padding: 10px 20px;
-            margin-right: 10px; /* Espaço entre o botão e o texto */
-            background-color: red; /* Cor do botão */
+            background-color: red;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             text-align: center;
-            vertical-align: middle;
+            white-space: nowrap; /* Previne quebra de texto dentro do botão */
         }
 
         .file-picker-button:hover {
             background-color: darkred;
         }
 
-        .container {
-            width: 80%;
-            margin: 0 auto;
+        label {
+            flex-grow: 1;
+            font-weight: normal;
+            color: #555;
         }
 
-        fieldset {
-            margin-bottom: 20px;
-            padding: 20px;
-            border: 1px solid #ddd;
-        }
-
-        legend {
-            font-weight: bold;
+        /* Responsividade */
+        @media (max-width: 600px) {
+            .upload-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
@@ -54,132 +91,75 @@
             <!-- Documentos obrigatórios -->
             <fieldset>
                 <legend>Documentos Obrigatórios</legend>
-
-                <div>
-                    <button type="button" id="rgCpf" class="file-picker-button">Escolher Arquivo</button>
-                    <label for="rgCpf">RG ou CPF ou CNH:</label>
-                </div>
-
-                <div>
-                    <button type="button" id="certidao" class="file-picker-button">Escolher Arquivo</button>
-                    <label for="certidao">Certidão de Nascimento ou Casamento:</label>
-                </div>
-
-                <div>
-                    <button type="button" id="holerite" class="file-picker-button">Escolher Arquivo</button>
-                    <label for="holerite">Comprovação de Renda (Holerite):</label>
-                </div>
-
-                <div>
-                    <button type="button" id="ir" class="file-picker-button">Escolher Arquivo</button>
-                    <label for="ir">Recibo e Declaração de Imposto de Renda:</label>
-                </div>
-
-                <div>
-                    <button type="button" id="faturaCartao" class="file-picker-button">Escolher Arquivo</button>
-                    <label for="faturaCartao">Comprovação de Renda Informal (Faturas de Cartão de Crédito):</label>
-                </div>
-
-                <div>
-                    <button type="button" id="endereco" class="file-picker-button">Escolher Arquivo</button>
-                    <label for="endereco">Comprovante de Endereço:</label>
-                </div>
-
-                <div>
-                    <button type="button" id="ctps" class="file-picker-button">Escolher Arquivo</button>
-                    <label for="ctps">Carteira de Trabalho Digital:</label>
-                </div>
-
-                <div>
-                    <button type="button" id="extratoFGTS" class="file-picker-button">Escolher Arquivo</button>
-                    <label for="extratoFGTS">Extrato FGTS:</label>
-                </div>
-
-                <div>
-                    <button type="button" id="certidaoDependentes" class="file-picker-button">Escolher Arquivo</button>
-                    <label for="certidaoDependentes">Certidão de Nascimento e RG dos Dependentes:</label>
-                </div>
-
-                <div>
-                    <button type="button" id="cancelamento" class="file-picker-button">Escolher Arquivo</button>
-                    <label for="cancelamento">Carta de Cancelamento de Análises de Financiamento:</label>
-                </div>
-
-                <div>
-                    <button type="button" id="autorizacao" class="file-picker-button">Escolher Arquivo</button>
-                    <label for="autorizacao">Ficha de Autorização de Análise Bancária:</label>
+                <div class="upload-group">
+                    <div class="upload-item">
+                        <button type="button" id="rgCpf" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="rgCpf">RG ou CPF ou CNH:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="certidao" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="certidao">Certidão de Nascimento ou Casamento:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="holerite" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="holerite">Comprovação de Renda (Holerite):</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="ir" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="ir">Recibo e Declaração de Imposto de Renda:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="faturaCartao" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="faturaCartao">Comprovação de Renda Informal (Faturas de Cartão de Crédito):</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="endereco" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="endereco">Comprovante de Endereço:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="ctps" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="ctps">Carteira de Trabalho Digital:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="extratoFGTS" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="extratoFGTS">Extrato FGTS:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="certidaoDependentes" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="certidaoDependentes">Certidão de Nascimento e RG dos Dependentes:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="cancelamento" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="cancelamento">Carta de Cancelamento de Análises de Financiamento:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="autorizacao" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="autorizacao">Ficha de Autorização de Análise Bancária:</label>
+                    </div>
                 </div>
             </fieldset>
-
-            <!-- Informações pessoais -->
-            <fieldset>
-                <legend>Informações Pessoais</legend>
-
-                <label for="nomeCompleto">Nome Completo:</label>
-                <input type="text" id="nomeCompleto" name="nomeCompleto">
-
-                <label for="pis">Número do PIS:</label>
-                <input type="text" id="pis" name="pis">
-
-                <label for="email">E-mail:</label>
-                <input type="email" id="email" name="email">
-
-                <label for="telefone">Telefone:</label>
-                <input type="tel" id="telefone" name="telefone">
-
-                <label for="escolaridade">Escolaridade:</label>
-                <input type="text" id="escolaridade" name="escolaridade">
-
-                <label for="tempoResidencia">Tempo de Residência em Bauru-SP:</label>
-                <input type="text" id="tempoResidencia" name="tempoResidencia">
-
-                <label for="profissao">Profissão:</label>
-                <input type="text" id="profissao" name="profissao">
-
-                <label for="tempoEmprego">Tempo de Atuação no Emprego Atual:</label>
-                <input type="text" id="tempoEmprego" name="tempoEmprego">
-            </fieldset>
-
-            <!-- Botão de envio -->
-            <button type="submit">Enviar Documentos</button>
         </form>
-
-        <!-- Exibição do resultado da operação (sucesso ou erro) -->
-        <div id="result" style="margin-top: 20px;"></div>
     </div>
 
-    <script src="script.js"></script> <!-- Link para o arquivo JavaScript -->
-
     <script>
-        // Inicializando o Filestack File Picker
-        const client = filestack.init('ApgANrOfTOWJBXY2mERX1z');  // Substitua pela sua chave do Filestack
+        // Inicializa o Filestack File Picker
+        const client = filestack.init('SUA_API_KEY'); // Substitua pela sua API Key
 
-        // Função para abrir o File Picker
-        function openFilePicker(fieldId) {
+        // Função para abrir o picker e exibir o nome do arquivo selecionado
+        function openFilePicker(buttonId) {
             client.picker({
                 fromSources: ['local_file_system'],
-                accept: ['image/*', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-                maxFiles: 1,
+                accept: ['image/*', 'application/pdf'],
                 onFileUploadFinished: (file) => {
-                    document.getElementById(fieldId).innerHTML = `Arquivo: ${file.filename}`;  // Exibe o nome do arquivo
-                    // Você pode aqui salvar a URL do arquivo para enviar com o formulário
-                    console.log('Arquivo enviado: ', file.url);
+                    console.log(`${buttonId}:`, file.url); // Aqui você pode manipular o resultado
                 }
             }).open();
         }
 
-        // Atribuindo eventos aos botões para abrir o Filestack File Picker
-        document.getElementById('rgCpf').addEventListener('click', () => openFilePicker('rgCpf'));
-        document.getElementById('certidao').addEventListener('click', () => openFilePicker('certidao'));
-        document.getElementById('holerite').addEventListener('click', () => openFilePicker('holerite'));
-        document.getElementById('ir').addEventListener('click', () => openFilePicker('ir'));
-        document.getElementById('faturaCartao').addEventListener('click', () => openFilePicker('faturaCartao'));
-        document.getElementById('endereco').addEventListener('click', () => openFilePicker('endereco'));
-        document.getElementById('ctps').addEventListener('click', () => openFilePicker('ctps'));
-        document.getElementById('extratoFGTS').addEventListener('click', () => openFilePicker('extratoFGTS'));
-        document.getElementById('certidaoDependentes').addEventListener('click', () => openFilePicker('certidaoDependentes'));
-        document.getElementById('cancelamento').addEventListener('click', () => openFilePicker('cancelamento'));
-        document.getElementById('autorizacao').addEventListener('click', () => openFilePicker('autorizacao'));
+        // Atribui eventos aos botões
+        document.querySelectorAll('.file-picker-button').forEach(button => {
+            button.addEventListener('click', (e) => openFilePicker(e.target.id));
+        });
     </script>
 </body>
 </html>
