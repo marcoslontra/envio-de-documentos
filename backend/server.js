@@ -6,10 +6,13 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const bodyParser = require('body-parser');
-const { uploadFile } = require('@uploadcare/upload-client');
+const filestack = require('filestack-js'); // Importando o Filestack
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Configuração do Filestack com a sua chave
+const client = filestack.init('ApgANrOfTOWJBXY2mERX1z');
 
 app.use(cors({
     origin: '*',
@@ -19,60 +22,71 @@ app.use(cors({
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Diretório de uploads temporários
 const uploadDir = path.join(__dirname, 'uploads');
 
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
 }
 
+// Configuração do multer para armazenar os arquivos temporariamente
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadDir);
+        cb(null, uploadDir);  // Armazenar no diretório de uploads
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
+        cb(null, Date.now() + path.extname(file.originalname));  // Usar timestamp para evitar conflitos
     }
 });
 const upload = multer({ storage: storage });
 
-async function uploadToUploadcare(filePath) {
+// Função para enviar o arquivo para o Filestack
+async function uploadToFilestack(filePath) {
     try {
-        const fileData = fs.readFileSync(filePath);
+        const fileData = fs.readFileSync(filePath);  // Lê o arquivo local como Buffer
 
-        const result = await uploadFile(fileData, {
-            publicKey: 'a175e2b2ae361b86b5e7',
-            store: 'auto',
-            metadata: {
-                subsystem: 'js-client',
-                pet: 'cat'
-            }
-        });
+        // Faz o upload para o Filestack
+        const result = await client.upload(fileData);  // Faz o upload do arquivo para o Filestack
 
-        return result.uuid;
+        return result.url;  // Retorna a URL do arquivo no Filestack
     } catch (error) {
+        console.error('Erro ao enviar para o Filestack:', error);
         throw error;
     }
 }
 
+// Rota para upload de documentos
 app.post('/upload', upload.any(), async (req, res) => {
     try {
         if (!req.files || req.files.length === 0) {
             return res.status(400).send('Nenhum arquivo foi enviado!');
         }
 
+        const fileUrls = [];  // Para armazenar as URLs dos arquivos enviados
+
+        // Enviar cada arquivo para o Filestack
         for (const file of req.files) {
-            const filePath = path.join(uploadDir, file.filename);
-            const fileUuid = await uploadToUploadcare(filePath);
+            const filePath = path.join(uploadDir, file.filename);  // Caminho completo do arquivo temporário
+            const fileUrl = await uploadToFilestack(filePath);  // Envia para o Filestack e obtém a URL
+            console.log('URL do arquivo enviado:', fileUrl);  // Log da URL para depuração
+            fileUrls.push(fileUrl);  // Adiciona a URL à lista
         }
 
-        res.status(200).send('Arquivos enviados com sucesso para o Uploadcare!');
+        // Retornar uma resposta detalhada com as URLs dos arquivos
+        res.status(200).json({
+            message: 'Arquivos enviados com sucesso para o Filestack!',
+            fileUrls: fileUrls
+        });
     } catch (err) {
+        console.error('Erro ao processar o upload:', err);
         res.status(500).send('Erro no servidor. Tente novamente mais tarde.');
     }
 });
 
+// Servir arquivos estáticos da pasta frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
 
+// Iniciar o servidor
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
 });
