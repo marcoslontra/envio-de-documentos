@@ -7,6 +7,7 @@ const path = require('path');
 const fs = require('fs');
 const bodyParser = require('body-parser');
 const axios = require('axios'); // Usando axios para fazer requisições HTTP para o Filestack
+const FormData = require('form-data'); // Assegure-se de que o FormData esteja importado corretamente
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -47,19 +48,23 @@ async function uploadToFilestack(filePath) {
         // Lê o arquivo local como um Buffer
         const fileData = fs.readFileSync(filePath);
 
-        // Faz o upload para o Filestack usando a API REST
+        // Cria o FormData para enviar o arquivo
         const formData = new FormData();
-        formData.append('file', fileData, path.basename(filePath));
-        formData.append('apikey', FILSTACK_API_KEY);
+        formData.append('file', fileData, path.basename(filePath)); // Adiciona o arquivo ao formData
+        formData.append('apikey', FILSTACK_API_KEY); // Adiciona a chave da API
 
+        // Faz o upload para o Filestack usando a API REST
         const response = await axios.post(FILSTACK_UPLOAD_URL, formData, {
-            headers: formData.getHeaders()
+            headers: {
+                ...formData.getHeaders(), // Adiciona os headers necessários do FormData
+            },
         });
 
-        return response.data.url;  // Retorna a URL do arquivo no Filestack
+        // Retorna a URL do arquivo enviado para o Filestack
+        return response.data.url;
     } catch (error) {
-        console.error('Erro ao enviar para o Filestack:', error);
-        throw error;
+        console.error('Erro ao enviar para o Filestack:', error.message);
+        throw new Error('Erro ao enviar para o Filestack');
     }
 }
 
@@ -70,17 +75,17 @@ app.post('/upload', upload.any(), async (req, res) => {
             return res.status(400).send('Nenhum arquivo foi enviado!');
         }
 
-        const fileUrls = [];  // Para armazenar as URLs dos arquivos enviados
+        const fileUrls = []; // Para armazenar as URLs dos arquivos enviados
 
         // Enviar cada arquivo para o Filestack
         for (const file of req.files) {
-            const filePath = path.join(uploadDir, file.filename);  // Caminho completo do arquivo temporário
-            const fileUrl = await uploadToFilestack(filePath);  // Envia para o Filestack e obtém a URL
-            console.log('URL do arquivo enviado:', fileUrl);  // Log da URL para depuração
-            fileUrls.push(fileUrl);  // Adiciona a URL à lista
+            const filePath = path.join(uploadDir, file.filename); // Caminho completo do arquivo temporário
+            const fileUrl = await uploadToFilestack(filePath); // Envia para o Filestack e obtém a URL
+            console.log('URL do arquivo enviado:', fileUrl); // Log da URL para depuração
+            fileUrls.push(fileUrl); // Adiciona a URL à lista
         }
 
-        // Retornar uma resposta detalhada com as URLs dos arquivos
+        // Responde com sucesso
         res.status(200).json({
             message: 'Arquivos enviados com sucesso para o Filestack!',
             fileUrls: fileUrls
