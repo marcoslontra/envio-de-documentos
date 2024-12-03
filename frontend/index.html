@@ -9,24 +9,26 @@
     <style>
         /* Estilos para alinhar os botões de forma consistente */
         label {
-            display: block;
-            margin-bottom: 5px;
+            display: inline-block;
+            margin-left: 10px;
+            vertical-align: middle;
         }
 
-        button {
+        .file-picker-button {
             display: inline-block;
             padding: 10px 20px;
-            margin-bottom: 15px;
-            background-color: #4CAF50;
+            margin-right: 10px; /* Espaço entre o botão e o texto */
+            background-color: red; /* Cor do botão */
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             text-align: center;
+            vertical-align: middle;
         }
 
-        button:hover {
-            background-color: #45a049;
+        .file-picker-button:hover {
+            background-color: darkred;
         }
 
         .container {
@@ -54,57 +56,57 @@
                 <legend>Documentos Obrigatórios</legend>
 
                 <div>
-                    <button type="button" id="rgCpf">Escolher Arquivo</button>
+                    <button type="button" id="rgCpf" class="file-picker-button">Escolher Arquivo</button>
                     <label for="rgCpf">RG ou CPF ou CNH:</label>
                 </div>
 
                 <div>
-                    <button type="button" id="certidao">Escolher Arquivo</button>
+                    <button type="button" id="certidao" class="file-picker-button">Escolher Arquivo</button>
                     <label for="certidao">Certidão de Nascimento ou Casamento:</label>
                 </div>
 
                 <div>
-                    <button type="button" id="holerite">Escolher Arquivo</button>
+                    <button type="button" id="holerite" class="file-picker-button">Escolher Arquivo</button>
                     <label for="holerite">Comprovação de Renda (Holerite):</label>
                 </div>
 
                 <div>
-                    <button type="button" id="ir">Escolher Arquivo</button>
+                    <button type="button" id="ir" class="file-picker-button">Escolher Arquivo</button>
                     <label for="ir">Recibo e Declaração de Imposto de Renda:</label>
                 </div>
 
                 <div>
-                    <button type="button" id="faturaCartao">Escolher Arquivo</button>
+                    <button type="button" id="faturaCartao" class="file-picker-button">Escolher Arquivo</button>
                     <label for="faturaCartao">Comprovação de Renda Informal (Faturas de Cartão de Crédito):</label>
                 </div>
 
                 <div>
-                    <button type="button" id="endereco">Escolher Arquivo</button>
+                    <button type="button" id="endereco" class="file-picker-button">Escolher Arquivo</button>
                     <label for="endereco">Comprovante de Endereço:</label>
                 </div>
 
                 <div>
-                    <button type="button" id="ctps">Escolher Arquivo</button>
+                    <button type="button" id="ctps" class="file-picker-button">Escolher Arquivo</button>
                     <label for="ctps">Carteira de Trabalho Digital:</label>
                 </div>
 
                 <div>
-                    <button type="button" id="extratoFGTS">Escolher Arquivo</button>
+                    <button type="button" id="extratoFGTS" class="file-picker-button">Escolher Arquivo</button>
                     <label for="extratoFGTS">Extrato FGTS:</label>
                 </div>
 
                 <div>
-                    <button type="button" id="certidaoDependentes">Escolher Arquivo</button>
+                    <button type="button" id="certidaoDependentes" class="file-picker-button">Escolher Arquivo</button>
                     <label for="certidaoDependentes">Certidão de Nascimento e RG dos Dependentes:</label>
                 </div>
 
                 <div>
-                    <button type="button" id="cancelamento">Escolher Arquivo</button>
+                    <button type="button" id="cancelamento" class="file-picker-button">Escolher Arquivo</button>
                     <label for="cancelamento">Carta de Cancelamento de Análises de Financiamento:</label>
                 </div>
 
                 <div>
-                    <button type="button" id="autorizacao">Escolher Arquivo</button>
+                    <button type="button" id="autorizacao" class="file-picker-button">Escolher Arquivo</button>
                     <label for="autorizacao">Ficha de Autorização de Análise Bancária:</label>
                 </div>
             </fieldset>
