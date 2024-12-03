@@ -3,94 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Envio de Documentos</title>
-    <script src="https://static.filestackapi.com/filestack-js/3.x.x/filestack.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    <title>Upload de Documentos</title>
+    <script src="//static.filestackapi.com/filestack-js/3.x.x/filestack.min.js"></script>
+    <style>
+        /* Estilo geral */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        fieldset {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        legend {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .upload-group, .info-group {
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Espaçamento entre os itens */
+            margin-top: 20px;
+        }
+
+        .upload-item, .info-item {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-picker-button {
+            padding: 10px 20px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            white-space: nowrap; /* Previne quebra de texto dentro do botão */
+        }
+
+        .file-picker-button:hover {
+            background-color: darkred;
+        }
+
+        label {
+            flex-grow: 1;
+            font-weight: normal;
+            color: #555;
+        }
+
+        input, select {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button#submit {
+            margin-top: 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button#submit:hover {
+            background-color: #218838;
+        }
+
+        /* Responsividade */
+        @media (max-width: 600px) {
+            .upload-item, .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>Envio de Documentos</h1>
-        <form id="uploadForm">
-            <!-- Informações Pessoais -->
+        <form id="uploadForm" enctype="multipart/form-data">
+            <!-- Documentos obrigatórios -->
             <fieldset>
-                <legend>Informações Pessoais</legend>
-
-                <label for="nomeCompleto">Nome completo:</label>
-                <input type="text" id="nomeCompleto" name="nomeCompleto" required>
-
-                <label for="telefone">Telefone:</label>
-                <input type="tel" id="telefone" name="telefone" required>
-
-                <label for="dataNascimento">Data de Nascimento:</label>
-                <input type="date" id="dataNascimento" name="dataNascimento" required>
-
-                <label for="possuiFilhos">Possui filhos:</label>
-                <select id="possuiFilhos" name="possuiFilhos" required>
-                    <option value="Sim">Sim</option>
-                    <option value="Não">Não</option>
-                </select>
-
-                <label for="rendaCasal">Renda Bruta (Casal):</label>
-                <input type="number" id="rendaCasal" name="rendaCasal" required>
-
-                <label for="possuiImovel">Possui imóvel:</label>
-                <select id="possuiImovel" name="possuiImovel" required>
-                    <option value="Sim">Sim</option>
-                    <option value="Não">Não</option>
-                </select>
-
-                <label for="tresAnosTrabalho">Possui 3 anos de trabalho com carteira assinada?</label>
-                <select id="tresAnosTrabalho" name="tresAnosTrabalho" required>
-                    <option value="Sim">Sim</option>
-                    <option value="Não">Não</option>
-                </select>
+                <legend>Documentos Obrigatórios</legend>
+                <div class="upload-group">
+                    <div class="upload-item">
+                        <button type="button" id="rgCpf" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="rgCpf">CPF e RG:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="certidao" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="certidao">Comprovação de Estado Civil:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="certidaoMenores" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="certidaoMenores">Certidão de Nascimento (menores de 18):</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="endereco" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="endereco">Comprovante de Endereço:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="comprovanteRenda" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="comprovanteRenda">Comprovante de Renda:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="ir" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="ir">Declaração Imposto de Renda:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="ctps" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="ctps">Carteira de Trabalho:</label>
+                    </div>
+                    <div class="upload-item">
+                        <button type="button" id="extratoFgts" class="file-picker-button">Escolher Arquivo</button>
+                        <label for="extratoFgts">Extrato FGTS:</label>
+                    </div>
+                </div>
             </fieldset>
 
-            <!-- Botão de envio -->
-            <button type="button" id="submitButton">Enviar</button>
+            <!-- Informações pessoais -->
+            <fieldset>
+                <legend>Informações Pessoais</legend>
+                <div class="info-group">
+                    <div class="info-item">
+                        <label for="nomeCompleto">Nome completo:</label>
+                        <input type="text" id="nomeCompleto" name="nomeCompleto" required>
+                    </div>
+                    <div class="info-item">
+                        <label for="telefone">Telefone:</label>
+                        <input type="tel" id="telefone" name="telefone" required>
+                    </div>
+                    <div class="info-item">
+                        <label for="dataNascimento">Data de Nascimento:</label>
+                        <input type="date" id="dataNascimento" name="dataNascimento" required>
+                    </div>
+                    <div class="info-item">
+                        <label for="possuiFilhos">Possui filhos:</label>
+                        <select id="possuiFilhos" name="possuiFilhos" required>
+                            <option value="Sim">Sim</option>
+                            <option value="Não">Não</option>
+                        </select>
+                    </div>
+                    <div class="info-item">
+                        <label for="rendaCasal">Renda Bruta (Casal):</label>
+                        <input type="number" id="rendaCasal" name="rendaCasal" required>
+                    </div>
+                    <div class="info-item">
+                        <label for="possuiImovel">Possui imóvel:</label>
+                        <select id="possuiImovel" name="possuiImovel" required>
+                            <option value="Sim">Sim</option>
+                            <option value="Não">Não</option>
+                        </select>
+                    </div>
+                    <div class="info-item">
+                        <label for="tresAnosTrabalho">Trabalho registrado por 3 anos:</label>
+                        <select id="tresAnosTrabalho" name="tresAnosTrabalho" required>
+                            <option value="Sim">Sim</option>
+                            <option value="Não">Não</option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+
+            <button type="button" id="submit">Enviar</button>
         </form>
-        <div id="result"></div>
     </div>
 
     <script>
-        // Inicializar o cliente Filestack
-        const client = filestack.init('ApgANrOfTOWJBXY2mERX1z');
+        const client = filestack.init('ApgANrOfTOWJBXY2mERX1z'); // Substitua pela sua API Key
 
-        document.getElementById('submitButton').addEventListener('click', async () => {
+        document.getElementById('submit').addEventListener('click', async () => {
+            const formData = new FormData(document.getElementById('uploadForm'));
+            const infoPessoais = {
+                NomeCompleto: formData.get('nomeCompleto'),
+                Telefone: formData.get('telefone'),
+                DataNascimento: formData.get('dataNascimento'),
+                PossuiFilhos: formData.get('possuiFilhos'),
+                RendaCasal: formData.get('rendaCasal'),
+                PossuiImovel: formData.get('possuiImovel'),
+                TresAnosTrabalho: formData.get('tresAnosTrabalho'),
+            };
+
+            const infoTxt = Object.entries(infoPessoais)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join('\n');
+
+            const blob = new Blob([infoTxt], { type: 'text/plain' });
             try {
-                // Captura os dados preenchidos
-                const formData = new FormData(document.getElementById('uploadForm'));
-                const infoPessoais = {
-                    NomeCompleto: formData.get('nomeCompleto'),
-                    Telefone: formData.get('telefone'),
-                    DataNascimento: formData.get('dataNascimento'),
-                    PossuiFilhos: formData.get('possuiFilhos'),
-                    RendaCasal: formData.get('rendaCasal'),
-                    PossuiImovel: formData.get('possuiImovel'),
-                    TresAnosTrabalho: formData.get('tresAnosTrabalho'),
-                };
-
-                // Converte os dados em texto
-                const infoTxt = Object.entries(infoPessoais)
-                    .map(([key, value]) => `${key}: ${value}`)
-                    .join('\n');
-
-                // Cria um Blob (arquivo virtual) com o texto
-                const blob = new Blob([infoTxt], { type: 'text/plain' });
-
-                // Faz o upload do arquivo TXT para o Filestack
-                const response = await client.upload(blob, {
-                    filename: 'informacoes_pessoais.txt',
-                    mimetype: 'text/plain',
-                });
-
-                console.log('Informações Pessoais enviadas com sucesso:', response);
-                document.getElementById('result').innerHTML =
-                    `<p style="color: green;">Dados enviados com sucesso! URL: <a href="${response.url}" target="_blank">${response.url}</a></p>`;
+                const response = await client.upload(blob, { filename: 'informacoes_pessoais.txt' });
+                alert('Informações enviadas com sucesso! URL: ' + response.url);
             } catch (error) {
-                console.error('Erro ao enviar arquivo para o Filestack:', error);
-                document.getElementById('result').innerHTML =
-                    `<p style="color: red;">Erro ao enviar dados: ${error.message}</p>`;
+                alert('Erro ao enviar informações: ' + error.message);
             }
         });
     </script>
