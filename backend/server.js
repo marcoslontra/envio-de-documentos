@@ -1,11 +1,12 @@
 require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const bodyParser = require('body-parser');
-const { uploadFile } = require('@uploadcare/upload-client'); // Importando o método uploadFile
+const { uploadFile } = require('@uploadcare/upload-client');  // Importando o método uploadFile
 
 // Configuração do servidor Express
 const app = express();
@@ -20,7 +21,6 @@ app.use(cors({
 
 // Configuração do body-parser para processar dados de formulário
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
 
 // Configuração do multer para upload de arquivos
 const uploadDir = path.join(__dirname, 'uploads');
@@ -32,7 +32,7 @@ if (!fs.existsSync(uploadDir)) {
 // Configuração do armazenamento com multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadDir); // Arquivos temporários armazenados localmente
+        cb(null, uploadDir);  // Arquivos temporários armazenados localmente
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname));
@@ -41,49 +41,25 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Função para fazer o upload de um arquivo para o Uploadcare usando o novo cliente API
-async function uploadToUploadcare(filePath, fileName) {
+async function uploadToUploadcare(filePath) {
     try {
         // Lê o arquivo como Buffer ou File (necessário para o upload)
-        const fileData = fs.readFileSync(filePath); // Lê o arquivo local como Buffer
+        const fileData = fs.readFileSync(filePath);  // Lê o arquivo local como Buffer
 
         // Faz o upload do arquivo para o Uploadcare
         const result = await uploadFile(fileData, {
-            publicKey: process.env.UPLOADCARE_PUBLIC_KEY,  // Usar chave pública do .env
+            publicKey: 'a175e2b2ae361b86b5e7',  // Sua chave pública
             store: 'auto',  // Usar o armazenamento automático
             metadata: {
                 subsystem: 'js-client',
                 pet: 'cat'
-            },
-            filename: fileName  // Nome do arquivo ao enviar
+            }
         });
 
         console.log('Arquivo enviado com sucesso para o Uploadcare:', result);
         return result.uuid;  // Retorna o UUID do arquivo
     } catch (error) {
         console.error('Erro ao enviar arquivo para o Uploadcare:', error);
-        throw error;
-    }
-}
-
-// Função para converter o PDF para PNG
-async function convertPdfToPng(fileUuid) {
-    try {
-        const response = await fetch(`https://api.uploadcare.com/convert/document/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Uploadcare.Simple ${process.env.UPLOADCARE_PUBLIC_KEY}:${process.env.UPLOADCARE_SECRET_KEY}`
-            },
-            body: JSON.stringify({
-                paths: [`${fileUuid}/document/-/format/png/`],  // Converter PDF para PNG
-                store: 1
-            })
-        });
-        
-        const result = await response.json();
-        return result;  // Retorna o resultado da conversão
-    } catch (error) {
-        console.error('Erro na conversão do PDF para PNG:', error);
         throw error;
     }
 }
@@ -95,33 +71,12 @@ app.post('/upload', upload.any(), async (req, res) => {
             return res.status(400).send('Nenhum arquivo foi enviado!');
         }
 
-        const { nomeInformacoesPessoais } = req.body;  // Captura o nome da pessoa a partir das informações pessoais
-
-        if (!nomeInformacoesPessoais) {
-            return res.status(400).send('Nome não fornecido nas Informações Pessoais!');
-        }
-
         // Faz o upload de cada arquivo para o Uploadcare
         for (const file of req.files) {
             const filePath = path.join(uploadDir, file.filename);
-            let fileName = nomeInformacoesPessoais + path.extname(file.originalname);  // Nomeado com o nome da pessoa
-
             console.log(`Enviando o arquivo: ${file.filename} para o Uploadcare`);
-
-            // Se o arquivo for PDF, converta para PNG
-            if (file.mimetype === 'application/pdf') {
-                const fileUuid = await uploadToUploadcare(filePath, fileName); // Faz o upload do arquivo PDF
-                console.log('UUID do arquivo PDF:', fileUuid);  // Exibe o UUID retornado
-
-                // Converte o PDF para PNG
-                const conversionResult = await convertPdfToPng(fileUuid);
-                console.log('Resultado da conversão do PDF para PNG:', conversionResult);
-            } 
-            // Se for o arquivo com informações pessoais, salve como TXT
-            else if (file.mimetype === 'text/plain') {
-                const fileUuid = await uploadToUploadcare(filePath, fileName); // Faz o upload do arquivo TXT
-                console.log('UUID do arquivo TXT:', fileUuid);  // Exibe o UUID retornado
-            }
+            const fileUuid = await uploadToUploadcare(filePath);  // Chama a função para enviar o arquivo
+            console.log('UUID do arquivo:', fileUuid);  // Exibe o UUID retornado
         }
 
         res.status(200).send('Arquivos enviados com sucesso para o Uploadcare!');
